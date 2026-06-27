@@ -5,7 +5,7 @@
 	"runArgs": ["--name", "dev-react-sandbox"],
 	// Mount the .ssh repository to use GitHub
 	"mounts": [
-		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/dev/.ssh,readonly,type=bind"
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,readonly,type=bind"
 	],
 	"features": {
 		"ghcr.io/devcontainers-extra/features/opencode:1": {}
