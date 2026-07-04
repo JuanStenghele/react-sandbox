@@ -5,16 +5,17 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Drawer from '@mui/material/Drawer';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import { useState } from 'react';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import BookIcon from '@mui/icons-material/Book';
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 function App() {
-  const [tab, setTab] = useState(0);
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <AppBar position="static">
@@ -25,6 +26,9 @@ function App() {
             color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
+            onClick={() => {
+              alert('Menu button clicked!')
+            }}
           >
             <MenuIcon />
           </IconButton>
@@ -34,7 +38,6 @@ function App() {
           <Button color="inherit">Login</Button>
         </Toolbar>
       </AppBar>
-
       <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
         <Drawer
           variant="permanent"
@@ -49,18 +52,18 @@ function App() {
             },
           }}
         >
-          <Tabs
-            orientation="vertical"
-            value={tab}
-            onChange={(_, value) => setTab(value)}
-          >
-            <Tab label="Dashboard" />
-            <Tab label="Settings" />
-            <Tab label="Profile" />
-          </Tabs>
+          <List>
+            <ListItem key={"books"} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <BookIcon />
+                </ListItemIcon>
+                <ListItemText primary={"Books"} />
+              </ListItemButton>
+            </ListItem>
+          </List>
         </Drawer>
-
-        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto', p: 3 }}>
+        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto', padding: 3 }}>
           <Typography>Content goes here</Typography>
         </Box>
       </Box>
