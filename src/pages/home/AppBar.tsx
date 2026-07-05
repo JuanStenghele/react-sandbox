@@ -6,7 +6,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 const HomeAppBar = () => {
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ boxShadow: 'none' }}>
       <Toolbar>
         <IconButton
           size="large"
