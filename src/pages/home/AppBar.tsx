@@ -3,8 +3,12 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
+import { homeDrawerOpen } from '../../state/home';
+import { useAtom } from 'jotai';
 
 const HomeAppBar = () => {
+  const [drawerOpen, setDrawerOpen] = useAtom(homeDrawerOpen);
+
   return (
     <AppBar position="static" sx={{ boxShadow: 'none' }}>
       <Toolbar>
@@ -15,7 +19,7 @@ const HomeAppBar = () => {
           aria-label="menu"
           sx={{ mr: 2 }}
           onClick={() => {
-            alert('Menu button clicked!')
+            setDrawerOpen(!drawerOpen);
           }}
         >
           <MenuIcon />
