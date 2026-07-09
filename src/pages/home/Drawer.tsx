@@ -11,7 +11,7 @@ import { useAtomValue } from 'jotai';
 const HomeDrawer = () => {
   const drawerWidth = 200;
 
-  const drawerOpen = useAtomValue(homeDrawerOpen)
+  const drawerOpen = useAtomValue(homeDrawerOpen);
 
   return (
     <Drawer
@@ -28,7 +28,7 @@ const HomeDrawer = () => {
           position: 'relative',
           width: drawerWidth,
           boxSizing: 'border-box',
-        },
+        }
       }}
     >
       <List>

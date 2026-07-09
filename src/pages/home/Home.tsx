@@ -9,7 +9,7 @@ const Home = () => {
       <HomeAppBar />
       <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
         <HomeDrawer />
-        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto', padding: 3 }}>
+        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto', padding: 4 }}>
           <Typography>Content goes here</Typography>
         </Box>
       </Box>

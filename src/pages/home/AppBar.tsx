@@ -9,6 +9,10 @@ import { useAtom } from 'jotai';
 const HomeAppBar = () => {
   const [drawerOpen, setDrawerOpen] = useAtom(homeDrawerOpen);
 
+  const onMenuButtonClick = () => {
+    setDrawerOpen(!drawerOpen);
+  };
+
   return (
     <AppBar position="static" sx={{ boxShadow: 'none' }}>
       <Toolbar>
@@ -17,10 +21,8 @@ const HomeAppBar = () => {
           edge="start"
           color="inherit"
           aria-label="menu"
-          sx={{ mr: 2 }}
-          onClick={() => {
-            setDrawerOpen(!drawerOpen);
-          }}
+          sx={{ marginRight: 2 }}
+          onClick={onMenuButtonClick}
         >
           <MenuIcon />
         </IconButton>
