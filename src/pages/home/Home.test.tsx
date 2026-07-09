@@ -14,11 +14,12 @@ describe('Home', () => {
     render(<Home />)
 
     const menuButton = screen.getByLabelText('menu')
+    const drawer = document.querySelector('.MuiDrawer-root')
 
     await userEvent.click(menuButton)
-    expect(screen.queryByText('Books')).not.toBeVisible()
+    expect(drawer).toHaveStyle({ width: '0px' })
 
     await userEvent.click(menuButton)
-    expect(screen.getByText('Books')).toBeVisible()
+    expect(drawer).toHaveStyle({ width: '200px' })
   })
 })
