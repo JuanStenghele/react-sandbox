@@ -6,7 +6,7 @@ import { getBooks, useGetBooks } from './books';
 import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import { Book } from '../types/book';
+import type { Book } from '../types/book';
 
 describe('books service', () => {
   const sampleBook: Book = { 

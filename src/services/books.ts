@@ -23,4 +23,4 @@ export const getBooks = async (params: GetBooksRequest): Promise<GetBooksRespons
 
 export const useGetBooks = (params: GetBooksRequest) => {
   return useQuery({ queryKey: ["books", params], queryFn: () => getBooks(params) });
-}
+};
