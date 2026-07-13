@@ -1,20 +1,20 @@
 import Box from '@mui/material/Box';
+import { Outlet } from 'react-router';
 import HomeAppBar from './AppBar';
 import HomeDrawer from './Drawer';
-import Typography from '@mui/material/Typography';
 
-const Home = () => {
+const HomePage = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <HomeAppBar />
       <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
         <HomeDrawer />
-        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto', padding: 4 }}>
-          <Typography>Content goes here</Typography>
+        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto', padding: 3 }}>
+          <Outlet />
         </Box>
       </Box>
     </Box>
   );
 }
 
-export default Home
+export default HomePage

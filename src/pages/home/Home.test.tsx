@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import Home from './Home'
+import HomePage from './Home'
 
 describe('Home', () => {
   it('displays the drawer by default', () => {
-    render(<Home />)
+    render(<HomePage />)
 
     expect(screen.getByText('Books')).toBeVisible()
   })
 
   it('toggles the drawer when the menu button is clicked', async () => {
-    render(<Home />)
+    render(<HomePage />)
 
     const menuButton = screen.getByLabelText('menu')
     const drawer = document.querySelector('.MuiDrawer-root')
