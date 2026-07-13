@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest'
-import api from "./api";
+import backend from "./backend";
 import MockAdapter from "axios-mock-adapter";
 import type { GetBooksResponse } from './books';
 import { getBooks, useGetBooks } from './books';
@@ -29,7 +29,7 @@ describe('books service', () => {
 
   const sampleRequestParams = { search_term: "", page: 1, page_size: 10 };
 
-  const mock = new MockAdapter(api);
+  const mock = new MockAdapter(backend);
 
   afterEach(() => {
     mock.reset();

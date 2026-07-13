@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import api from "./api";
+import backend from "./backend";
 import type { Book } from "../types/book";
 
 export interface GetBooksRequest {
@@ -17,7 +17,7 @@ export interface GetBooksResponse {
 }
 
 export const getBooks = async (params: GetBooksRequest): Promise<GetBooksResponse> => {
-  const response = await api.get<GetBooksResponse>("/v1/books", { params });
+  const response = await backend.get<GetBooksResponse>("/v1/books", { params });
   return response.data;
 };
 
