@@ -4,7 +4,7 @@ export interface Book {
   author_id: string;
   description: string | null;
   isbn: string | null;
-  publication_date: string | null;
+  publication_date: Date | null;
   cover_image_url: string | null;
-  created_at: string;
+  created_at: Date;
 }

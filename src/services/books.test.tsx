@@ -1,15 +1,14 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import backend from "./backend";
 import MockAdapter from "axios-mock-adapter";
-import type { GetBooksResponse } from './books';
+import type { RawBook, GetBooksRawResponse } from './books';
 import { getBooks, useGetBooks } from './books';
-import { renderHook, waitFor } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
-import type { Book } from '../types/book';
+import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 
 describe('books service', () => {
-  const sampleBook: Book = { 
+  const sampleRawBook: RawBook = { 
     id: "60fd6e8e-9e00-4e84-ad28-8d2fdd3d0ddd",
     title: "The Pragmatic Programmer",
     author_id: "a6f682de-5fd4-442e-a237-71b30281a2d6",
@@ -19,13 +18,23 @@ describe('books service', () => {
     cover_image_url: "http://localhost:8000/storage/user-content/cover-images/60fd6e8e-9e00-4e84-ad28-8d2fdd3d0ddd.jpg",
     created_at: "2026-06-25T03:28:59.552152"
   }
-  const sampleResponse: GetBooksResponse = {
-    books: [sampleBook],
+  const sampleRawResponse: GetBooksRawResponse = {
+    books: [sampleRawBook],
     total_books: 1,
     total_pages: 1,
     current_page: 1,
     page_size: 10
   }
+  const sampleResult = {
+    ...sampleRawResponse,
+    books: [
+      {
+        ...sampleRawBook,
+        publication_date: new Date(sampleRawBook.publication_date!),
+        created_at: new Date(sampleRawBook.created_at),
+      }
+    ]
+  };
 
   const sampleRequestParams = { search_term: "", page: 1, page_size: 10 };
 
@@ -37,11 +46,11 @@ describe('books service', () => {
 
   describe('request', () => {
     it('returns a successful response', async () => {
-      mock.onGet("/v1/books").reply(200, sampleResponse);
+      mock.onGet("/v1/books").reply(200, sampleRawResponse);
 
       const response = await getBooks(sampleRequestParams);
 
-      expect(response).toEqual(sampleResponse);
+      expect(response).toEqual(sampleResult);
     });
 
     it('returns a 5xx response', async () => {
@@ -64,7 +73,7 @@ describe('books service', () => {
     };
 
     it('handles a successful query', async () => {
-      mock.onGet("/v1/books").reply(200, sampleResponse);
+      mock.onGet("/v1/books").reply(200, sampleRawResponse);
       const wrapper = buildWrapper();
 
       const { result } = renderHook(() => useGetBooks(sampleRequestParams), { wrapper });
@@ -73,7 +82,7 @@ describe('books service', () => {
         expect(result.current.isSuccess).toBe(true);
         expect(result.current.isError).toBe(false);
       });
-      expect(result.current.data).toEqual(sampleResponse);
+      expect(result.current.data).toEqual(sampleResult);
     });
 
     it('handles a failed query', async () => {
