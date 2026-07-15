@@ -1,3 +1,4 @@
+import { Navigate } from 'react-router';
 import { Paper } from '@mui/material';
 import { Box } from '@mui/system';
 import Typography from '@mui/material/Typography';
@@ -6,6 +7,10 @@ import { useAuth } from 'react-oidc-context';
 
 const LoginPage = () => {
   const auth = useAuth();
+
+  if (auth.isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   const onSignInButtonClick = () => {
     auth.signinRedirect()

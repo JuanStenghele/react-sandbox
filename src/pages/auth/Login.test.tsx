@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter, Routes, Route } from 'react-router';
 import LoginPage from './Login';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
@@ -37,5 +38,23 @@ describe('LoginPage', () => {
     await userEvent.click(signInButton)
 
     expect(signinRedirect).toHaveBeenCalled();
+  });
+
+  it('redirects to home if already authenticated', () => {
+    mockedUseAuth.mockReturnValue(
+      buildAuthProps({ isAuthenticated: true, isLoading: false })
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <Routes>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="/" element={<>HOME</>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('HOME')).toBeInTheDocument();
+    expect(screen.queryByText('React Sandbox')).not.toBeInTheDocument();
   });
 });
