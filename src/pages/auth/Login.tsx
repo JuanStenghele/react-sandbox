@@ -24,14 +24,14 @@ const LoginPage = () => {
       height: '100vh', 
       bgcolor: '#1976d2'
     }}>
-      <Paper elevation={3} sx={{ 
+      <Paper elevation={3.0} sx={{ 
         width: '30%',
         marginX: 'auto', 
-        padding: 4,
+        padding: 4.0,
         display: 'flex',
         flexDirection: 'column'
       }}>
-        <Box sx={{ marginBottom: 6 }}>
+        <Box sx={{ marginBottom: 6.0 }}>
           <Typography variant='h3' align='center'>
             React Sandbox
           </Typography>

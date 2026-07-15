@@ -33,6 +33,20 @@ describe('AppRoutes', () => {
     );
   };
 
+  it.each([[true], [false]])('shows not found page when route is not known', (isAuthenticated: boolean) => {
+    mockedUseAuth.mockReturnValue(
+      buildAuthProps({ isAuthenticated, isLoading: false })
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/invalid-route']}>
+        <AppRoutes />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Page Not Found')).toBeInTheDocument();
+  });
+
   describe('books routes', () => {
     const sampleRawResponse: GetBooksRawResponse = {
       books: [

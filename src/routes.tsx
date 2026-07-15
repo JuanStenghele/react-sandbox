@@ -3,6 +3,7 @@ import HomePage from './pages/home/Home';
 import BooksPage from './pages/books/Books';
 import AuthGate from './pages/auth/AuthGate';
 import LoginPage from './pages/auth/Login';
+import NotFoundPage from './pages/NotFound';
 
 const AppRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const AppRoutes = () => {
           <Route path='books' element={<BooksPage />} />
         </Route>
       </Route>
+      <Route path='*' element={<NotFoundPage />} />
     </Routes>
   );
 }
