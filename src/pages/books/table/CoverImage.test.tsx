@@ -28,6 +28,30 @@ describe('BooksTableCoverImage', () => {
     expect(openSpy).toHaveBeenCalledWith(url, '_blank');
   });
 
+  it('opens the image in a new tab on aux click (middle-click)', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    render(<BooksTableCoverImage url={url} book_title={bookTitle} />);
+
+    const img = screen.getByAltText(`cover of ${bookTitle}`);
+    fireEvent(img, new MouseEvent('auxclick', { bubbles: true, button: 1 }));
+
+    expect(openSpy).toHaveBeenCalledWith(url, '_blank');
+  });
+
+  it('stops aux click propagation', () => {
+    const parentHandler = vi.fn();
+    render(
+      <div onAuxClick={parentHandler}>
+        <BooksTableCoverImage url={url} book_title={bookTitle} />
+      </div>
+    );
+
+    const img = screen.getByAltText(`cover of ${bookTitle}`);
+    fireEvent(img, new MouseEvent('auxclick', { bubbles: true, button: 1 }));
+
+    expect(parentHandler).not.toHaveBeenCalled();
+  });
+
   it('stops click propagation', () => {
     const parentHandler = vi.fn();
     render(
