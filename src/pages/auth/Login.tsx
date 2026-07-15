@@ -1,10 +1,10 @@
-import { Paper } from "@mui/material";
-import { Box } from "@mui/system";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import { useAuth } from "react-oidc-context";
+import { Paper } from '@mui/material';
+import { Box } from '@mui/system';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import { useAuth } from 'react-oidc-context';
 
-const SignInPage = () => {
+const LoginPage = () => {
   const auth = useAuth();
 
   const onSignInButtonClick = () => {
@@ -27,14 +27,14 @@ const SignInPage = () => {
         flexDirection: 'column'
       }}>
         <Box sx={{ marginBottom: 6 }}>
-          <Typography variant="h3" align="center">
+          <Typography variant='h3' align='center'>
             React Sandbox
           </Typography>
-          <Typography variant="h5" align="center" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+          <Typography variant='h5' align='center' sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
             by Juan Stenghele
           </Typography>
         </Box>
-        <Button variant="contained" aria-label="sign-in-button" onClick={onSignInButtonClick} sx={{ alignSelf: 'center' }}>
+        <Button variant='contained' aria-label='sign-in-button' onClick={onSignInButtonClick} sx={{ alignSelf: 'center' }}>
           SIGN IN
         </Button>
       </Paper>
@@ -42,4 +42,4 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default LoginPage;

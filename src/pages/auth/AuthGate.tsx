@@ -1,6 +1,5 @@
-import { Outlet } from 'react-router';
+import { Outlet, Navigate } from 'react-router';
 import { useAuth } from 'react-oidc-context';
-import SignInPage from './SignIn';
 import LoadingPage from '../Loading';
 
 const AuthGate = () => {
@@ -23,7 +22,7 @@ const AuthGate = () => {
   }
 
   return (
-    <SignInPage />
+    <Navigate to='/login' replace />
   );
 };
 

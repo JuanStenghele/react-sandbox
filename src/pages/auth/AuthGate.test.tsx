@@ -43,14 +43,21 @@ describe('AuthGate', () => {
     expect(screen.getByText('PROTECTED CONTENT')).toBeInTheDocument();
   });
 
-  it('displays the sign in page if the user is not authenticated', () => {
+  it('redirects to login if the user is not authenticated', () => {
     mockedUseAuth.mockReturnValue(
       buildAuthProps({ isAuthenticated: false, isLoading: false })
     );
-    render(<AuthGate />);
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route element={<AuthGate />}>
+            <Route index element={<>PROTECTED CONTENT</>} />
+          </Route>
+          <Route path='login' element={<>LOGIN PAGE</>} />
+        </Routes>
+      </MemoryRouter>
+    );
 
-    const signInButton = screen.getByLabelText('sign-in-button');
-
-    expect(signInButton).toBeInTheDocument();
+    expect(screen.getByText('LOGIN PAGE')).toBeInTheDocument();
   });
 });
