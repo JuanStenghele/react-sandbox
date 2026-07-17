@@ -3,8 +3,9 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import { homeDrawerOpen } from '../../state/home';
+import { homeDrawerOpen } from '../../../state/home';
 import { useAtom } from 'jotai';
+import ProfileButton from './ProfileButton';
 
 const HomeAppBar = () => {
   const [drawerOpen, setDrawerOpen] = useAtom(homeDrawerOpen);
@@ -29,6 +30,7 @@ const HomeAppBar = () => {
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           React Sandbox
         </Typography>
+        <ProfileButton />
       </Toolbar>
     </AppBar>
   );
