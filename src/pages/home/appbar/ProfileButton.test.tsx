@@ -20,7 +20,7 @@ describe('ProfileButton', () => {
     );
     render(<ProfileButton />);
 
-    expect(screen.getByLabelText('options')).toBeInTheDocument();
+    expect(screen.getByLabelText('profile')).toBeInTheDocument();
   });
 
   it('opens the menu when clicking the profile button', () => {
@@ -29,7 +29,7 @@ describe('ProfileButton', () => {
     );
     render(<ProfileButton />);
 
-    fireEvent.click(screen.getByLabelText('options'));
+    fireEvent.click(screen.getByLabelText('profile'));
 
     expect(screen.getByText('Sign Out')).toBeInTheDocument();
   });
@@ -41,7 +41,7 @@ describe('ProfileButton', () => {
     );
     render(<ProfileButton />);
 
-    fireEvent.click(screen.getByLabelText('options'));
+    fireEvent.click(screen.getByLabelText('profile'));
     fireEvent.click(screen.getByText('Sign Out'));
 
     expect(removeUser).toHaveBeenCalled();

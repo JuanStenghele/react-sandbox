@@ -14,7 +14,7 @@ const ProfileButton = () => {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const menuOpen: boolean = Boolean(menuAnchor);
 
-  const onOptionsButtonClick = (event: MouseEvent<HTMLElement>) => {
+  const onProfileButtonClick = (event: MouseEvent<HTMLElement>) => {
     setMenuAnchor(event.currentTarget);
   };
 
@@ -30,8 +30,8 @@ const ProfileButton = () => {
     <>
       <IconButton
         size='large'
-        aria-label='options'
-        onClick={onOptionsButtonClick}
+        aria-label='profile'
+        onClick={onProfileButtonClick}
         color='inherit'
       >
         <AccountCircle />
