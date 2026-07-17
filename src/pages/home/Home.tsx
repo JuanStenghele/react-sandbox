@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import { Outlet } from 'react-router';
-import HomeAppBar from './AppBar';
+import HomeAppBar from './appbar/AppBar';
 import HomeDrawer from './Drawer';
 
 const HomePage = () => {
