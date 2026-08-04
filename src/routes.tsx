@@ -4,6 +4,7 @@ import BooksPage from './pages/books/Books';
 import AuthGate from './pages/auth/AuthGate';
 import LoginPage from './pages/auth/Login';
 import NotFoundPage from './pages/NotFound';
+import AuthorsPage from './pages/authors/Authors';
 
 const AppRoutes = () => {
   return (
@@ -13,6 +14,7 @@ const AppRoutes = () => {
         <Route element={<HomePage />}>
           <Route index element={<Navigate to='/books' replace />} />
           <Route path='books' element={<BooksPage />} />
+          <Route path='authors' element={<AuthorsPage />} />
         </Route>
       </Route>
       <Route path='*' element={<NotFoundPage />} />
