@@ -5,16 +5,17 @@ import AuthGate from './pages/auth/AuthGate';
 import LoginPage from './pages/auth/Login';
 import NotFoundPage from './pages/NotFound';
 import AuthorsPage from './pages/authors/Authors';
+import { ROUTES } from './constants';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path='login' element={<LoginPage />} />
+      <Route path={ROUTES.login} element={<LoginPage />} />
       <Route element={<AuthGate />}>
         <Route element={<HomePage />}>
-          <Route index element={<Navigate to='/books' replace />} />
-          <Route path='books' element={<BooksPage />} />
-          <Route path='authors' element={<AuthorsPage />} />
+          <Route index element={<Navigate to={ROUTES.books} replace />} />
+          <Route path={ROUTES.books} element={<BooksPage />} />
+          <Route path={ROUTES.authors} element={<AuthorsPage />} />
         </Route>
       </Route>
       <Route path='*' element={<NotFoundPage />} />

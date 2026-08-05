@@ -5,18 +5,31 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import BookIcon from '@mui/icons-material/Book';
+import HistoryEduRoundedIcon from '@mui/icons-material/HistoryEduRounded';
 import { homeDrawerOpen } from '../../state/home';
 import { useAtomValue } from 'jotai';
+import { useNavigate } from 'react-router';
+import { ROUTES } from '../../constants';
 
 const HomeDrawer = () => {
   const drawerWidth = 200;
+  const navigate = useNavigate();
 
   const drawerOpen = useAtomValue(homeDrawerOpen);
 
+  const onListItemClick = (path: string) => {
+    navigate(path);
+  };
+
+  const items = [
+    { text: 'Authors', icon: <HistoryEduRoundedIcon />, path: ROUTES.authors },
+    { text: 'Books', icon: <BookIcon />, path: ROUTES.books }
+  ];
+
   return (
     <Drawer
-      variant="persistent"
-      anchor="left"
+      variant='persistent'
+      anchor='left'
       open={drawerOpen}
       sx={{
         width: drawerOpen ? drawerWidth : 0,
@@ -27,22 +40,26 @@ const HomeDrawer = () => {
         '& .MuiDrawer-paper': {
           position: 'relative',
           width: drawerWidth,
-          boxSizing: 'border-box',
+          boxSizing: 'border-box'
         }
       }}
     >
       <List>
-        <ListItem key={"books"} disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <BookIcon />
-            </ListItemIcon>
-            <ListItemText primary={"Books"} />
-          </ListItemButton>
-        </ListItem>
+        {
+          items.map((item) => (
+            <ListItem disablePadding key={item.text.toLowerCase()}>
+              <ListItemButton onClick={() => onListItemClick(item.path)}>
+                <ListItemIcon>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </ListItem>
+          ))
+        }
       </List>
     </Drawer>
-  )
-}
+  );
+};
 
-export default HomeDrawer
+export default HomeDrawer;
