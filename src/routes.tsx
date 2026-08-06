@@ -5,6 +5,7 @@ import AuthGate from './pages/auth/AuthGate';
 import LoginPage from './pages/auth/Login';
 import NotFoundPage from './pages/NotFound';
 import AuthorsPage from './pages/authors/Authors';
+import UnauthorizedPage from './pages/Unauthorized';
 import { ROUTES } from './constants';
 
 const AppRoutes = () => {
@@ -18,6 +19,7 @@ const AppRoutes = () => {
           <Route path={ROUTES.authors} element={<AuthorsPage />} />
         </Route>
       </Route>
+      <Route path={ROUTES.unauthorized} element={<UnauthorizedPage />} />
       <Route path='*' element={<NotFoundPage />} />
     </Routes>
   );
