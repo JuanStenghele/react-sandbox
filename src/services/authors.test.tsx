@@ -1,9 +1,9 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import backend from './backend';
 import MockAdapter from 'axios-mock-adapter';
 import type { Author } from '../types/author';
-import type { GetAuthorsResponse } from './authors';
-import { getAuthors, useGetAuthors } from './authors';
+import type { GetAuthorsResponse, PostAuthorResponse } from './authors';
+import { postAuthor, usePostAuthor, getAuthors, useGetAuthors } from './authors';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -13,15 +13,18 @@ describe('authors service', () => {
     id: 'a6f682de-5fd4-442e-a237-71b30281a2d6',
     name: 'Jane Austen',
   }
-  const sampleResponse: GetAuthorsResponse = {
+
+  const sampleGetAuthorsResponse: GetAuthorsResponse = {
     authors: [sampleAuthor],
     total_authors: 1,
     total_pages: 1,
     current_page: 1,
     page_size: 10
   }
+  const samplePostAuthorResponse: PostAuthorResponse = sampleAuthor;
 
-  const sampleRequestParams = { search_term: '', page: 1, page_size: 10 };
+  const samplePostAuthorRequest = { name: sampleAuthor.name };
+  const sampleGetAuthorRequest = { search_term: '', page: 1, page_size: 10 };
 
   const mock = new MockAdapter(backend);
 
@@ -29,52 +32,106 @@ describe('authors service', () => {
     mock.reset();
   });
 
-  describe('request', () => {
-    it('returns a successful response', async () => {
-      mock.onGet('/v1/authors').reply(200, sampleResponse);
+  describe('requests', () => {
+    it('returns a successful response on postAuthor', async () => {
+      mock.onPost('/v1/authors').reply(200, samplePostAuthorResponse);
 
-      const response = await getAuthors(sampleRequestParams);
+      const response = await postAuthor(samplePostAuthorRequest);
 
-      expect(response).toEqual(sampleResponse);
+      expect(response).toEqual(samplePostAuthorResponse);
     });
 
-    it('returns a 5xx response', async () => {
+    it('returns a 5xx response on postAuthor', async () => {
+      mock.onPost('/v1/authors').reply(500);
+
+      await expect(postAuthor(samplePostAuthorRequest)).rejects.toBeDefined();
+    });
+
+    it('returns a successful response on getAuthors', async () => {
+      mock.onGet('/v1/authors').reply(200, sampleGetAuthorsResponse);
+
+      const response = await getAuthors(sampleGetAuthorRequest);
+
+      expect(response).toEqual(sampleGetAuthorsResponse);
+    });
+
+    it('returns a 5xx response on getAuthors', async () => {
       mock.onGet('/v1/authors').reply(500);
 
-      await expect(getAuthors(sampleRequestParams)).rejects.toBeDefined();
+      await expect(getAuthors(sampleGetAuthorRequest)).rejects.toBeDefined();
     });
   });
 
   describe('hooks', () => {
-    const buildWrapper = () => {
-      const queryClient = new QueryClient({
+    const buildWrapper = (queryClient?: QueryClient) => {
+      const client = queryClient ?? new QueryClient({
         defaultOptions: { queries: { retry: false } }
       });
       return ({ children }: { children: ReactNode }) => (
-        <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={client}>
           { children }
         </QueryClientProvider>
       );
     };
 
-    it('handles a successful query', async () => {
-      mock.onGet('/v1/authors').reply(200, sampleResponse);
-      const wrapper = buildWrapper();
+    it('handles a successful usePostAuthors mutation', async () => {
+      mock.onPost('/v1/authors').reply(200, samplePostAuthorResponse);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
 
-      const { result } = renderHook(() => useGetAuthors(sampleRequestParams), { wrapper });
+      const { result } = renderHook(() => usePostAuthor(), { wrapper });
+
+      result.current.mutate(samplePostAuthorRequest);
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
         expect(result.current.isError).toBe(false);
       });
-      expect(result.current.data).toEqual(sampleResponse);
+      expect(result.current.data).toEqual(samplePostAuthorResponse);
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['authors'] });
     });
 
-    it('handles a failed query', async () => {
+    it('handles a failed usePostAuthors mutation', async () => {
+      mock.onPost('/v1/authors').reply(500);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => usePostAuthor(), { wrapper });
+
+      result.current.mutate(samplePostAuthorRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(false);
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toBeDefined();
+      expect(invalidateQueriesSpy).not.toHaveBeenCalled();
+    });
+
+    it('handles a successful useGetAuthors query', async () => {
+      mock.onGet('/v1/authors').reply(200, sampleGetAuthorsResponse);
+      const wrapper = buildWrapper();
+
+      const { result } = renderHook(() => useGetAuthors(sampleGetAuthorRequest), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(result.current.isError).toBe(false);
+      });
+      expect(result.current.data).toEqual(sampleGetAuthorsResponse);
+    });
+
+    it('handles a failed useGetAuthors query', async () => {
       mock.onGet('/v1/authors').reply(500);
       const wrapper = buildWrapper();
 
-      const { result } = renderHook(() => useGetAuthors(sampleRequestParams), { wrapper });
+      const { result } = renderHook(() => useGetAuthors(sampleGetAuthorRequest), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(false);

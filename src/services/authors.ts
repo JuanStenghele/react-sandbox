@@ -1,6 +1,36 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import backend from './backend';
 import type { Author } from '../types/author';
+
+export interface PostAuthorRequest {
+  name: string;
+}
+
+export interface PostAuthorResponse {
+  id: string;
+  name: string;
+}
+
+export const postAuthor = async (data: PostAuthorRequest): Promise<PostAuthorResponse> => {
+  const response = await backend.post<PostAuthorResponse>('/v1/authors', { ...data });
+  return response.data;
+};
+
+export const usePostAuthor = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params: PostAuthorRequest) => postAuthor(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['authors']
+      });
+      // TODO: Show a success toast notification
+    },
+    onError: () => {
+      // TODO: Show an error toast notification
+    }
+  });
+};
 
 export interface GetAuthorsRequest {
   search_term: string;
