@@ -7,7 +7,7 @@ const AuthGate = () => {
   const auth = useAuth();
 
   if (auth.error) {
-    // Show toast with error message auth.error.source, auth.error.message
+    // TODO: Show toast with error message auth.error.source, auth.error.message
   }
 
   if (auth.isLoading) {
