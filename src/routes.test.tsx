@@ -5,9 +5,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
 import { useAuth } from 'react-oidc-context';
-import { buildAuthProps } from './test/utils';
+import { buildAuthProps, buildAuthUser } from './test/utils';
 import backend from './services/backend';
 import type { GetBooksRawResponse } from './services/books';
+import type { GetAuthorsResponse } from './services/authors';
 import AppRoutes from './routes';
 
 vi.mock('react-oidc-context');
@@ -83,6 +84,78 @@ describe('AppRoutes', () => {
 
       await waitFor(() => {
         expect(screen.getByText('The Pragmatic Programmer')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('authors routes', () => {
+    const sampleResponse: GetAuthorsResponse = {
+      authors: [
+        {
+          id: 'a6f682de-5fd4-442e-a237-71b30281a2d6',
+          name: 'Jane Austen',
+        },
+      ],
+      total_authors: 1,
+      total_pages: 1,
+      current_page: 1,
+      page_size: 10,
+    };
+
+    it('renders authors page', async () => {
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false })
+      );
+      mock.onGet('/v1/authors').reply(200, sampleResponse);
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={['/authors']}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Jane Austen')).toBeInTheDocument();
+      });
+    });
+
+    it('renders new author page for an admin user', async () => {
+      const adminUser = buildAuthUser({ scope: 'openid admin' });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={['/authors/new']}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('New Author')).toBeInTheDocument();
+      });
+    });
+
+    it('redirects to unauthorized page for a non-admin user', async () => {
+      const regularUser = buildAuthUser({ scope: 'openid' });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
+      );
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={['/authors/new']}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Unauthorized Access')).toBeInTheDocument();
       });
     });
   });
