@@ -1,12 +1,13 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, useLocation } from 'react-router';
+import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
 import backend from '../../services/backend';
 import type { PostAuthorResponse } from '../../services/authors';
+import { LocationDisplay } from '../../test/utils';
 import NewAuthorForm from './Form';
 
 describe('NewAuthorForm', () => {
@@ -20,11 +21,6 @@ describe('NewAuthorForm', () => {
   afterEach(() => {
     mock.reset();
   });
-
-  const LocationDisplay = () => {
-    const location = useLocation();
-    return <div data-testid='location'>{location.pathname}</div>;
-  };
 
   const buildWrapper = () => {
     const queryClient = new QueryClient({

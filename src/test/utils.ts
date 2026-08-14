@@ -1,6 +1,13 @@
+import { createElement } from 'react';
+import { useLocation } from 'react-router';
 import { vi } from 'vitest';
 import type { AuthContextProps } from 'react-oidc-context';
 import { User } from 'oidc-client-ts';
+
+export const LocationDisplay = () => {
+  const location = useLocation();
+  return createElement('div', { 'data-testid': 'location' }, location.pathname);
+};
 
 export const buildAuthProps = (overrides: Partial<AuthContextProps> = {}): AuthContextProps => ({
   isLoading: false,
