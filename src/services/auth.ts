@@ -1,6 +1,7 @@
 import { UserManager } from 'oidc-client-ts';
 import { WebStorageStateStore } from 'oidc-client-ts';
 import { adminScope } from '../constants';
+import { useAuth } from 'react-oidc-context';
 
 const OIDCScopes = 'openid profile email offline_access';
 const requestedAuthScopes = `${OIDCScopes} ${adminScope}`;
@@ -18,3 +19,9 @@ export const authOIDCConfig = {
 };
 
 export const userManager = new UserManager(authOIDCConfig);
+
+export const useHasPermission = (scope: string) => {
+  const auth = useAuth();
+  const scopes = auth.user?.scopes ?? [];
+  return scopes.includes(scope);
+};
