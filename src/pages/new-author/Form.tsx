@@ -74,6 +74,7 @@ const NewAuthorForm = () => {
           disabled={!isValid}
           loadingPosition='start'
           loading={isPending}
+          disableElevation
         >
           Save
         </Button>
