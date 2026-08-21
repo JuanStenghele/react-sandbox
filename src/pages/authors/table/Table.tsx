@@ -4,11 +4,14 @@ import {
   GridOverlay,
   type GridColDef,
   type GridPaginationModel,
+  type GridRowSelectionModel,
 } from '@mui/x-data-grid';
 import { useGetAuthors } from '../../../services/authors';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import ErrorIcon from '@mui/icons-material/Error';
 import { Typography } from '@mui/material';
+import { useSetAtom } from 'jotai';
+import { selectedAuthorRowsIds } from '../../../state/authors';
 
 const AuthorsTable = () => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
@@ -26,6 +29,22 @@ const AuthorsTable = () => {
     { field: 'id', headerName: 'ID', width: 296.0 },
     { field: 'name', headerName: 'Name', width: 248.0 }
   ];
+
+  const setSelectedRowsIds = useSetAtom(selectedAuthorRowsIds);
+
+  const onRowSelected = (newSelectionModel: GridRowSelectionModel) => {
+    const selectionIds = new Set([...newSelectionModel.ids].map((id) => id.toString()));
+    if (newSelectionModel.type === 'exclude') {
+      const shownIds = new Set(data?.authors.map((author) => author.id));
+      setSelectedRowsIds(
+        shownIds.difference(selectionIds)
+      );
+    } else if (newSelectionModel.type === 'include') {
+      setSelectedRowsIds(
+        selectionIds
+      );
+    }
+  };
 
   const buildNoAuthorsFoundOverlay = () => {
     return (
@@ -64,6 +83,7 @@ const AuthorsTable = () => {
         noRowsOverlay: isError ? buildLoadingErrorOverlay : buildNoAuthorsFoundOverlay
       }}
       checkboxSelection
+      onRowSelectionModelChange={onRowSelected}
       disableColumnSorting
       disableColumnFilter
     />
