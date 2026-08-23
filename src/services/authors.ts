@@ -54,3 +54,29 @@ export const getAuthors = async (params: GetAuthorsRequest): Promise<GetAuthorsR
 export const useGetAuthors = (params: GetAuthorsRequest) => {
   return useQuery({ queryKey: ['authors', params], queryFn: () => getAuthors(params) });
 };
+
+export interface DeleteAuthorsRequest {
+  ids: string[];
+}
+
+export const deleteAuthors = async (data: DeleteAuthorsRequest): Promise<void> => {
+  const params = new URLSearchParams();
+  data.ids.forEach((id) => params.append('ids', id));
+  await backend.delete('/v1/authors', { params });
+};
+
+export const useDeleteAuthors = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params: DeleteAuthorsRequest) => deleteAuthors(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['authors']
+      });
+      // TODO: Show a success toast notification
+    },
+    onError: () => {
+      // TODO: Show an error toast notification
+    }
+  });
+};

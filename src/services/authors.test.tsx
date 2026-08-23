@@ -2,8 +2,8 @@ import { describe, it, expect, afterEach, vi } from 'vitest'
 import backend from './backend';
 import MockAdapter from 'axios-mock-adapter';
 import type { Author } from '../types/author';
-import type { GetAuthorsResponse, PostAuthorResponse } from './authors';
-import { postAuthor, usePostAuthor, getAuthors, useGetAuthors } from './authors';
+import type { DeleteAuthorsRequest, GetAuthorsResponse, PostAuthorResponse } from './authors';
+import { postAuthor, usePostAuthor, getAuthors, useGetAuthors, deleteAuthors, useDeleteAuthors } from './authors';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -25,6 +25,7 @@ describe('authors service', () => {
 
   const samplePostAuthorRequest = { name: sampleAuthor.name };
   const sampleGetAuthorRequest = { search_term: '', page: 1, page_size: 10 };
+  const sampleDeleteAuthorsRequest: DeleteAuthorsRequest = { ids: ['a6f682de-5fd4-442e-a237-71b30281a2d6', '6d0d5f0b-2f3a-4f9b-9f1e-2d2b3c4d5e6f'] };
 
   const mock = new MockAdapter(backend);
 
@@ -59,6 +60,20 @@ describe('authors service', () => {
       mock.onGet('/v1/authors').reply(500);
 
       await expect(getAuthors(sampleGetAuthorRequest)).rejects.toBeDefined();
+    });
+
+    it('returns a successful response on deleteAuthors', async () => {
+      mock.onDelete('/v1/authors').reply(200);
+
+      await expect(deleteAuthors(sampleDeleteAuthorsRequest)).resolves.toBeUndefined();
+      expect(mock.history.delete).toHaveLength(1);
+      expect(mock.history.delete[0].params?.toString()).toBe('ids=a6f682de-5fd4-442e-a237-71b30281a2d6&ids=6d0d5f0b-2f3a-4f9b-9f1e-2d2b3c4d5e6f');
+    });
+
+    it('returns a 5xx response on deleteAuthors', async () => {
+      mock.onDelete('/v1/authors').reply(500);
+
+      await expect(deleteAuthors(sampleDeleteAuthorsRequest)).rejects.toBeDefined();
     });
   });
 
@@ -138,6 +153,45 @@ describe('authors service', () => {
         expect(result.current.isError).toBe(true);
       });
       expect(result.current.error).toBeDefined();
+    });
+
+    it('handles a successful useDeleteAuthors mutation', async () => {
+      mock.onDelete('/v1/authors').reply(200);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => useDeleteAuthors(), { wrapper });
+
+      result.current.mutate(sampleDeleteAuthorsRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(result.current.isError).toBe(false);
+      });
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['authors'] });
+    });
+
+    it('handles a failed useDeleteAuthors mutation', async () => {
+      mock.onDelete('/v1/authors').reply(500);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => useDeleteAuthors(), { wrapper });
+
+      result.current.mutate(sampleDeleteAuthorsRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(false);
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toBeDefined();
+      expect(invalidateQueriesSpy).not.toHaveBeenCalled();
     });
   });
 })
