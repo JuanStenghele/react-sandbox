@@ -2,12 +2,16 @@ import { Outlet, Navigate } from 'react-router';
 import { ROUTES } from '../../constants';
 import { useAuth } from 'react-oidc-context';
 import LoadingPage from '../Loading';
+import { useSnackbar } from 'notistack';
 
 const AuthGate = () => {
   const auth = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
 
   if (auth.error) {
-    // TODO: Show toast with error message auth.error.source, auth.error.message
+    enqueueSnackbar(`Authentication error: ${auth.error.message}`, {
+      variant: 'error'
+    });
   }
 
   if (auth.isLoading) {
