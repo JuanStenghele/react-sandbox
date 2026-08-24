@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import backend from './backend';
 import type { Author } from '../types/author';
+import { useSnackbar } from 'notistack';
 
 export interface PostAuthorRequest {
   name: string;
@@ -18,16 +19,21 @@ export const postAuthor = async (data: PostAuthorRequest): Promise<PostAuthorRes
 
 export const usePostAuthor = () => {
   const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
   return useMutation({
     mutationFn: (params: PostAuthorRequest) => postAuthor(params),
-    onSuccess: () => {
+    onSuccess: (_, variables: PostAuthorRequest) => {
       queryClient.invalidateQueries({
         queryKey: ['authors']
       });
-      // TODO: Show a success toast notification
+      enqueueSnackbar(`Author ${variables.name} created successfully`, {
+        variant: 'success'
+      });
     },
-    onError: () => {
-      // TODO: Show an error toast notification
+    onError: (error: Error) => {
+      enqueueSnackbar(`Failed to create author: ${error.name} - ${error.message}`, {
+        variant: 'error'
+      });
     }
   });
 };
@@ -52,7 +58,10 @@ export const getAuthors = async (params: GetAuthorsRequest): Promise<GetAuthorsR
 };
 
 export const useGetAuthors = (params: GetAuthorsRequest) => {
-  return useQuery({ queryKey: ['authors', params], queryFn: () => getAuthors(params) });
+  return useQuery({ 
+    queryKey: ['authors', params], 
+    queryFn: () => getAuthors(params) 
+  });
 };
 
 export interface DeleteAuthorsRequest {
@@ -67,16 +76,21 @@ export const deleteAuthors = async (data: DeleteAuthorsRequest): Promise<void> =
 
 export const useDeleteAuthors = () => {
   const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
   return useMutation({
     mutationFn: (params: DeleteAuthorsRequest) => deleteAuthors(params),
-    onSuccess: () => {
+    onSuccess: (_, variables: DeleteAuthorsRequest) => {
       queryClient.invalidateQueries({
         queryKey: ['authors']
       });
-      // TODO: Show a success toast notification
+      enqueueSnackbar(`Deleted ${variables.ids.length} authors successfully`, {
+        variant: 'success'
+      });
     },
-    onError: () => {
-      // TODO: Show an error toast notification
+    onError: (error: Error) => {
+      enqueueSnackbar(`Failed to delete authors: ${error.name} - ${error.message}`, {
+        variant: 'error'
+      });
     }
   });
 };

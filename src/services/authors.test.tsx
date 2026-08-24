@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach, vi } from 'vitest'
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import backend from './backend';
 import MockAdapter from 'axios-mock-adapter';
 import type { Author } from '../types/author';
@@ -6,7 +6,10 @@ import type { DeleteAuthorsRequest, GetAuthorsResponse, PostAuthorResponse } fro
 import { postAuthor, usePostAuthor, getAuthors, useGetAuthors, deleteAuthors, useDeleteAuthors } from './authors';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useSnackbar } from 'notistack';
 import type { ReactNode } from 'react';
+
+vi.mock('notistack');
 
 describe('authors service', () => {
   const sampleAuthor: Author = { 
@@ -28,6 +31,16 @@ describe('authors service', () => {
   const sampleDeleteAuthorsRequest: DeleteAuthorsRequest = { ids: ['a6f682de-5fd4-442e-a237-71b30281a2d6', '6d0d5f0b-2f3a-4f9b-9f1e-2d2b3c4d5e6f'] };
 
   const mock = new MockAdapter(backend);
+  const mockedUseSnackbar = vi.mocked(useSnackbar);
+  const enqueueSnackbar = vi.fn();
+
+  beforeEach(() => {
+    enqueueSnackbar.mockReset();
+    mockedUseSnackbar.mockReturnValue({
+      enqueueSnackbar,
+      closeSnackbar: vi.fn(),
+    });
+  });
 
   afterEach(() => {
     mock.reset();
@@ -107,6 +120,9 @@ describe('authors service', () => {
       });
       expect(result.current.data).toEqual(samplePostAuthorResponse);
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['authors'] });
+      expect(enqueueSnackbar).toHaveBeenCalledWith('Author Jane Austen created successfully', {
+        variant: 'success'
+      });
     });
 
     it('handles a failed usePostAuthors mutation', async () => {
@@ -127,6 +143,10 @@ describe('authors service', () => {
       });
       expect(result.current.error).toBeDefined();
       expect(invalidateQueriesSpy).not.toHaveBeenCalled();
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to create author'),
+        { variant: 'error' }
+      );
     });
 
     it('handles a successful useGetAuthors query', async () => {
@@ -172,6 +192,9 @@ describe('authors service', () => {
         expect(result.current.isError).toBe(false);
       });
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['authors'] });
+      expect(enqueueSnackbar).toHaveBeenCalledWith('Deleted 2 authors successfully', {
+        variant: 'success'
+      });
     });
 
     it('handles a failed useDeleteAuthors mutation', async () => {
@@ -192,6 +215,10 @@ describe('authors service', () => {
       });
       expect(result.current.error).toBeDefined();
       expect(invalidateQueriesSpy).not.toHaveBeenCalled();
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to delete authors'),
+        { variant: 'error' }
+      );
     });
   });
 })
