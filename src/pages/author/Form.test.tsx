@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
 import backend from '../../services/backend';
 import type { PostAuthorResponse } from '../../services/authors';
+import type { Author } from '../../types/author';
 import { LocationDisplay } from '../../test/utils';
 import AuthorForm from './Form';
 
@@ -15,7 +16,12 @@ describe('AuthorForm', () => {
 
   const sampleResponse: PostAuthorResponse = {
     id: 'a6f682de-5fd4-442e-a237-71b30281a2d6',
-    name: 'Jane Austen',
+    name: 'Jane Austen'
+  };
+
+  const sampleAuthor: Author = {
+    id: 'a6f682de-5fd4-442e-a237-71b30281a2d6',
+    name: 'Jane Austen'
   };
 
   afterEach(() => {
@@ -44,6 +50,14 @@ describe('AuthorForm', () => {
     expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+  });
+
+  it('does not show the ID field when creating an author', () => {
+    const wrapper = buildWrapper();
+
+    render(<AuthorForm />, { wrapper });
+
+    expect(screen.queryByLabelText('ID')).not.toBeInTheDocument();
   });
 
   it('disables the Save button when the name is empty', () => {
@@ -107,6 +121,41 @@ describe('AuthorForm', () => {
     await waitFor(() => {
       expect(mock.history.post.length).toBe(1);
       expect(JSON.parse(mock.history.post[0].data)).toEqual({ name: 'Jane Austen' });
+      expect(screen.getByTestId('location')).toHaveTextContent('/authors');
+    });
+  });
+
+  it('renders a disabled ID field and a prefilled Name in edit mode', () => {
+    const wrapper = buildWrapper();
+
+    render(<AuthorForm author={sampleAuthor} />, { wrapper });
+
+    expect(screen.getByLabelText('ID')).toBeDisabled();
+    expect(screen.getByDisplayValue(sampleAuthor.name)).toBeInTheDocument();
+  });
+
+  it('enables the Save button when the name is prefilled in edit mode', async () => {
+    const wrapper = buildWrapper();
+
+    render(<AuthorForm author={sampleAuthor} />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
+  });
+
+  it('submits via PATCH and redirects to authors page in edit mode', async () => {
+    mock.onPatch(`/v1/authors/${sampleAuthor.id}`).reply(200, sampleAuthor);
+    const wrapper = buildWrapper();
+
+    render(<AuthorForm author={sampleAuthor} />, { wrapper });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(mock.history.patch.length).toBe(1);
+      expect(mock.history.patch[0].url).toContain(sampleAuthor.id);
+      expect(JSON.parse(mock.history.patch[0].data)).toEqual({ name: sampleAuthor.name });
       expect(screen.getByTestId('location')).toHaveTextContent('/authors');
     });
   });

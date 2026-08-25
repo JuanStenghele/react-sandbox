@@ -4,18 +4,26 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../constants';
-import { usePostAuthor } from '../../services/authors';
+import { usePatchAuthor, usePostAuthor } from '../../services/authors';
+import type { Author } from '../../types/author';
+
+export interface AuthorPageProps {
+  author?: Author;
+}
 
 interface AuthorFormInput {
   name: string;
 }
 
-const AuthorForm = () => {
+const AuthorForm = (props: AuthorPageProps) => {
+  const isEditMode = !!props.author;
   const navigate = useNavigate();
-  const { mutate, isPending } = usePostAuthor();
+  const { mutate: postMutate, isPending: isPostPending } = usePostAuthor();
+  const { mutate: patchMutate, isPending: isPatchPending } = usePatchAuthor();
+  const isPending = isPostPending || isPatchPending;
 
   const { control, handleSubmit, formState: { isValid } } = useForm<AuthorFormInput>({
-    defaultValues: { name: '' },
+    defaultValues: { name: props.author?.name ?? '' },
   });
 
   const navigateToAuthorsPage = () => {
@@ -23,11 +31,19 @@ const AuthorForm = () => {
   };
 
   const onSubmit: SubmitHandler<AuthorFormInput> = (data: AuthorFormInput) => {
-    mutate(data, {
-      onSuccess: () => {
-        navigateToAuthorsPage();
-      }
-    });
+    if (isEditMode) {
+      patchMutate({ id: props.author!.id, data }, {
+        onSuccess: () => {
+          navigateToAuthorsPage();
+        }
+      });
+    } else {
+      postMutate(data, {
+        onSuccess: () => {
+          navigateToAuthorsPage();
+        }
+      });
+    }
   };
 
   return (
@@ -36,7 +52,20 @@ const AuthorForm = () => {
       onSubmit={handleSubmit(onSubmit)}
       sx={{ display: 'flex', flexDirection: 'column', gap: 2.0, height: '100%' }}
     >
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1 }}>
+        {
+          isEditMode && (
+            <TextField
+              label='ID'
+              sx={{
+                width: '100%',
+                maxWidth: 726.0
+              }}
+              value={props.author!.id}
+              disabled
+            />
+          )
+        }
         <Controller
           name='name'
           control={control}
