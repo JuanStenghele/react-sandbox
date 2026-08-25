@@ -2,8 +2,8 @@ import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import backend from './backend';
 import MockAdapter from 'axios-mock-adapter';
 import type { Author } from '../types/author';
-import type { DeleteAuthorsRequest, GetAuthorsResponse, PostAuthorResponse } from './authors';
-import { postAuthor, usePostAuthor, getAuthors, useGetAuthors, deleteAuthors, useDeleteAuthors } from './authors';
+import type { DeleteAuthorsRequest, GetAuthorsResponse, PatchAuthorRequest, PatchAuthorResponse, PostAuthorResponse } from './authors';
+import { postAuthor, usePostAuthor, getAuthors, useGetAuthors, getAuthor, useGetAuthor, patchAuthor, usePatchAuthor, deleteAuthors, useDeleteAuthors } from './authors';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -25,10 +25,12 @@ describe('authors service', () => {
     page_size: 10
   }
   const samplePostAuthorResponse: PostAuthorResponse = sampleAuthor;
+  const samplePatchAuthorResponse: PatchAuthorResponse = sampleAuthor;
 
   const samplePostAuthorRequest = { name: sampleAuthor.name };
   const sampleGetAuthorRequest = { search_term: '', page: 1, page_size: 10 };
   const sampleDeleteAuthorsRequest: DeleteAuthorsRequest = { ids: ['a6f682de-5fd4-442e-a237-71b30281a2d6', '6d0d5f0b-2f3a-4f9b-9f1e-2d2b3c4d5e6f'] };
+  const samplePatchAuthorRequest: { id: string; data: PatchAuthorRequest } = { id: sampleAuthor.id, data: { name: sampleAuthor.name } };
 
   const mock = new MockAdapter(backend);
   const mockedUseSnackbar = vi.mocked(useSnackbar);
@@ -73,6 +75,34 @@ describe('authors service', () => {
       mock.onGet('/v1/authors').reply(500);
 
       await expect(getAuthors(sampleGetAuthorRequest)).rejects.toBeDefined();
+    });
+
+    it('returns a successful response on getAuthor', async () => {
+      mock.onGet(`/v1/authors/${sampleAuthor.id}`).reply(200, sampleAuthor);
+
+      const response = await getAuthor(sampleAuthor.id);
+
+      expect(response).toEqual(sampleAuthor);
+    });
+
+    it('returns a 5xx response on getAuthor', async () => {
+      mock.onGet(`/v1/authors/${sampleAuthor.id}`).reply(500);
+
+      await expect(getAuthor(sampleAuthor.id)).rejects.toBeDefined();
+    });
+
+    it('returns a successful response on patchAuthor', async () => {
+      mock.onPatch(`/v1/authors/${sampleAuthor.id}`).reply(200, samplePatchAuthorResponse);
+
+      const response = await patchAuthor(samplePatchAuthorRequest.id, samplePatchAuthorRequest.data);
+
+      expect(response).toEqual(samplePatchAuthorResponse);
+    });
+
+    it('returns a 5xx response on patchAuthor', async () => {
+      mock.onPatch(`/v1/authors/${sampleAuthor.id}`).reply(500);
+
+      await expect(patchAuthor(samplePatchAuthorRequest.id, samplePatchAuthorRequest.data)).rejects.toBeDefined();
     });
 
     it('returns a successful response on deleteAuthors', async () => {
@@ -173,6 +203,99 @@ describe('authors service', () => {
         expect(result.current.isError).toBe(true);
       });
       expect(result.current.error).toBeDefined();
+    });
+
+    it('handles a successful useGetAuthor query', async () => {
+      mock.onGet(`/v1/authors/${sampleAuthor.id}`).reply(200, sampleAuthor);
+      const wrapper = buildWrapper();
+
+      const { result } = renderHook(() => useGetAuthor(sampleAuthor.id), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(result.current.isError).toBe(false);
+      });
+      expect(result.current.data).toEqual(sampleAuthor);
+    });
+
+    it('handles a failed useGetAuthor query', async () => {
+      mock.onGet(`/v1/authors/${sampleAuthor.id}`).reply(500);
+      const wrapper = buildWrapper();
+
+      const { result } = renderHook(() => useGetAuthor(sampleAuthor.id), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(false);
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toBeDefined();
+    });
+
+    it('does not fetch when enabled is false', () => {
+      const wrapper = buildWrapper();
+
+      const { result } = renderHook(() => useGetAuthor(sampleAuthor.id, false), { wrapper });
+
+      expect(result.current.fetchStatus).toBe('idle');
+      expect(result.current.data).toBeUndefined();
+      expect(mock.history.get).toHaveLength(0);
+    });
+
+    it('does not fetch when id is undefined', () => {
+      const wrapper = buildWrapper();
+
+      const { result } = renderHook(() => useGetAuthor(undefined), { wrapper });
+
+      expect(result.current.fetchStatus).toBe('idle');
+      expect(result.current.data).toBeUndefined();
+      expect(mock.history.get).toHaveLength(0);
+    });
+
+    it('handles a successful usePatchAuthor mutation', async () => {
+      mock.onPatch(`/v1/authors/${sampleAuthor.id}`).reply(200, samplePatchAuthorResponse);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => usePatchAuthor(), { wrapper });
+
+      result.current.mutate(samplePatchAuthorRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(result.current.isError).toBe(false);
+      });
+      expect(result.current.data).toEqual(samplePatchAuthorResponse);
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['authors'] });
+      expect(enqueueSnackbar).toHaveBeenCalledWith('Author Jane Austen updated successfully', {
+        variant: 'success'
+      });
+    });
+
+    it('handles a failed usePatchAuthor mutation', async () => {
+      mock.onPatch(`/v1/authors/${sampleAuthor.id}`).reply(500);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => usePatchAuthor(), { wrapper });
+
+      result.current.mutate(samplePatchAuthorRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(false);
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toBeDefined();
+      expect(invalidateQueriesSpy).not.toHaveBeenCalled();
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to update author'),
+        { variant: 'error' }
+      );
     });
 
     it('handles a successful useDeleteAuthors mutation', async () => {

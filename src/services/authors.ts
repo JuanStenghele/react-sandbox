@@ -64,6 +64,19 @@ export const useGetAuthors = (params: GetAuthorsRequest) => {
   });
 };
 
+export const getAuthor = async (id: string): Promise<Author> => {
+  const response = await backend.get<Author>(`/v1/authors/${id}`);
+  return response.data;
+};
+
+export const useGetAuthor = (id: string | undefined, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ['authors', id],
+    queryFn: () => getAuthor(id as string),
+    enabled: enabled && !!id,
+  });
+};
+
 export interface DeleteAuthorsRequest {
   ids: string[];
 }
@@ -89,6 +102,41 @@ export const useDeleteAuthors = () => {
     },
     onError: (error: Error) => {
       enqueueSnackbar(`Failed to delete authors: ${error.name} - ${error.message}`, {
+        variant: 'error'
+      });
+    }
+  });
+};
+
+export interface PatchAuthorRequest {
+  name: string;
+}
+
+export interface PatchAuthorResponse {
+  id: string;
+  name: string;
+}
+
+export const patchAuthor = async (id: string, data: PatchAuthorRequest): Promise<PatchAuthorResponse> => {
+  const response = await backend.patch<PatchAuthorResponse>(`/v1/authors/${id}`, { ...data });
+  return response.data;
+};
+
+export const usePatchAuthor = () => {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  return useMutation({
+    mutationFn: (params: { id: string; data: PatchAuthorRequest }) => patchAuthor(params.id, params.data),
+    onSuccess: (_, variables: { id: string; data: PatchAuthorRequest }) => {
+      queryClient.invalidateQueries({
+        queryKey: ['authors']
+      });
+      enqueueSnackbar(`Author ${variables.data.name} updated successfully`, {
+        variant: 'success'
+      });
+    },
+    onError: (error: Error) => {
+      enqueueSnackbar(`Failed to update author: ${error.name} - ${error.message}`, {
         variant: 'error'
       });
     }
