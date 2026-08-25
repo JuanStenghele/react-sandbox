@@ -5,9 +5,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
 import backend from '../../services/backend';
-import NewAuthorPage from './NewAuthor';
+import AuthorPage from './Author';
 
-describe('NewAuthorPage', () => {
+describe('AuthorPage', () => {
   const mock = new MockAdapter(backend);
 
   afterEach(() => {
@@ -28,7 +28,7 @@ describe('NewAuthorPage', () => {
   it('displays the title and form', () => {
     const wrapper = buildWrapper();
 
-    render(<NewAuthorPage />, { wrapper });
+    render(<AuthorPage />, { wrapper });
 
     expect(screen.getByText('New Author')).toBeInTheDocument();
     expect(screen.getByRole('textbox')).toBeInTheDocument();

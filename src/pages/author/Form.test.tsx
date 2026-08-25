@@ -8,9 +8,9 @@ import MockAdapter from 'axios-mock-adapter';
 import backend from '../../services/backend';
 import type { PostAuthorResponse } from '../../services/authors';
 import { LocationDisplay } from '../../test/utils';
-import NewAuthorForm from './Form';
+import AuthorForm from './Form';
 
-describe('NewAuthorForm', () => {
+describe('AuthorForm', () => {
   const mock = new MockAdapter(backend);
 
   const sampleResponse: PostAuthorResponse = {
@@ -39,7 +39,7 @@ describe('NewAuthorForm', () => {
   it('renders the form with Name field and action buttons', () => {
     const wrapper = buildWrapper();
 
-    render(<NewAuthorForm />, { wrapper });
+    render(<AuthorForm />, { wrapper });
 
     expect(screen.getByRole('textbox')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('NewAuthorForm', () => {
   it('disables the Save button when the name is empty', () => {
     const wrapper = buildWrapper();
 
-    render(<NewAuthorForm />, { wrapper });
+    render(<AuthorForm />, { wrapper });
 
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
@@ -57,7 +57,7 @@ describe('NewAuthorForm', () => {
   it('redirects to authors page when clicking the Cancel button', async () => {
     const wrapper = buildWrapper();
 
-    render(<NewAuthorForm />, { wrapper });
+    render(<AuthorForm />, { wrapper });
 
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -72,7 +72,7 @@ describe('NewAuthorForm', () => {
     mock.onPost('/v1/authors').reply(() => deferredResponse);
     const wrapper = buildWrapper();
 
-    render(<NewAuthorForm />, { wrapper });
+    render(<AuthorForm />, { wrapper });
 
     await userEvent.type(screen.getByRole('textbox'), 'Jane Austen');
 
@@ -96,7 +96,7 @@ describe('NewAuthorForm', () => {
     mock.onPost('/v1/authors').reply(200, sampleResponse);
     const wrapper = buildWrapper();
 
-    render(<NewAuthorForm />, { wrapper });
+    render(<AuthorForm />, { wrapper });
 
     await userEvent.type(screen.getByRole('textbox'), 'Jane Austen');
 

@@ -7,7 +7,7 @@ import LoginPage from './pages/auth/Login';
 import NotFoundPage from './pages/NotFound';
 import AuthorsPage from './pages/authors/Authors';
 import UnauthorizedPage from './pages/Unauthorized';
-import NewAuthorPage from './pages/new-author/NewAuthor';
+import AuthorPage from './pages/author/Author';
 import AdminGate from './pages/auth/AdminGate';
 
 const AppRoutes = () => {
@@ -20,7 +20,7 @@ const AppRoutes = () => {
           <Route path={ROUTES.books} element={<BooksPage />} />
           <Route path={ROUTES.authors} element={<AuthorsPage />} />
           <Route element={<AdminGate />}>
-            <Route path={ROUTES.newAuthor} element={<NewAuthorPage />} />
+            <Route path={ROUTES.newAuthor} element={<AuthorPage />} />
           </Route>
         </Route>
       </Route>

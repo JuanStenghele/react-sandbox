@@ -6,15 +6,15 @@ import { useNavigate } from 'react-router';
 import { ROUTES } from '../../constants';
 import { usePostAuthor } from '../../services/authors';
 
-interface NewAuthorFormInput {
+interface AuthorFormInput {
   name: string;
 }
 
-const NewAuthorForm = () => {
+const AuthorForm = () => {
   const navigate = useNavigate();
   const { mutate, isPending } = usePostAuthor();
 
-  const { control, handleSubmit, formState: { isValid } } = useForm<NewAuthorFormInput>({
+  const { control, handleSubmit, formState: { isValid } } = useForm<AuthorFormInput>({
     defaultValues: { name: '' },
   });
 
@@ -22,7 +22,7 @@ const NewAuthorForm = () => {
     navigate(ROUTES.authors);
   };
 
-  const onSubmit: SubmitHandler<NewAuthorFormInput> = (data: NewAuthorFormInput) => {
+  const onSubmit: SubmitHandler<AuthorFormInput> = (data: AuthorFormInput) => {
     mutate(data, {
       onSuccess: () => {
         navigateToAuthorsPage();
@@ -83,4 +83,4 @@ const NewAuthorForm = () => {
   );
 };
 
-export default NewAuthorForm;
+export default AuthorForm;

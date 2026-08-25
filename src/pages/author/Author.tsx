@@ -1,17 +1,17 @@
 import { Box, Typography } from '@mui/material';
-import NewAuthorForm from './Form';
+import AuthorForm from './Form';
 
-const NewAuthorPage = () => {
+const AuthorPage = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Typography variant='h4' gutterBottom>
         New Author
       </Typography>
       <Box sx={{ flexGrow: 1, minHeight: 0 }}>
-        <NewAuthorForm />
+        <AuthorForm />
       </Box>
     </Box>
   );
 };
 
-export default NewAuthorPage;
+export default AuthorPage;
