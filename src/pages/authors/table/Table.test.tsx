@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider, createStore } from 'jotai';
 import type { ReactNode } from 'react';
@@ -9,6 +10,7 @@ import backend from '../../../services/backend';
 import type { Author } from '../../../types/author';
 import type { GetAuthorsResponse } from '../../../services/authors';
 import { selectedAuthorRowsIds } from '../../../state/authors';
+import { LocationDisplay } from '../../../test/utils';
 import AuthorsTable from './Table';
 import type { Store } from 'jotai/vanilla/store';
 
@@ -40,13 +42,20 @@ describe('AuthorsTable', () => {
     mock.reset();
   });
 
-  const buildWrapper = () => {
+  const buildWrapper = (store?: Store) => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
     return ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>
-        {children}
+        <MemoryRouter>
+          <LocationDisplay />
+          {store ? (
+            <Provider store={store}>{children}</Provider>
+          ) : (
+            children
+          )}
+        </MemoryRouter>
       </QueryClientProvider>
     );
   };
@@ -88,19 +97,6 @@ describe('AuthorsTable', () => {
   });
 
   describe('row selection', () => {
-    const buildWrapper = (store: Store) => {
-      const queryClient = new QueryClient({
-        defaultOptions: { queries: { retry: false } },
-      });
-      return ({ children }: { children: ReactNode }) => (
-        <QueryClientProvider client={queryClient}>
-          <Provider store={store}>
-            {children}
-          </Provider>
-        </QueryClientProvider>
-      );
-    };
-
     it('stores the selected row id when a row is included', async () => {
       mock.onGet('/v1/authors').reply(200, sampleResponse);
       const store = createStore();
@@ -140,6 +136,25 @@ describe('AuthorsTable', () => {
 
       await userEvent.click(rowCheckbox);
       expect(store.get(selectedAuthorRowsIds)).toEqual(new Set());
+    });
+  });
+
+  describe('row click', () => {
+    it('navigates to the edit author page when a row is clicked', async () => {
+      mock.onGet('/v1/authors').reply(200, sampleResponse);
+      const wrapper = buildWrapper();
+
+      render(<AuthorsTable />, { wrapper });
+
+      await waitFor(() => {
+        expect(screen.getByText('Jane Austen')).toBeInTheDocument();
+      });
+
+      await userEvent.click(screen.getByText('Jane Austen'));
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        `/authors/${sampleAuthor.id}`
+      );
     });
   });
 });

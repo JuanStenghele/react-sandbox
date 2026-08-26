@@ -4,6 +4,7 @@ import {
   GridOverlay,
   type GridColDef,
   type GridPaginationModel,
+  type GridRowParams,
   type GridRowSelectionModel,
 } from '@mui/x-data-grid';
 import { useGetAuthors } from '../../../services/authors';
@@ -12,8 +13,12 @@ import ErrorIcon from '@mui/icons-material/Error';
 import { Typography } from '@mui/material';
 import { useSetAtom } from 'jotai';
 import { selectedAuthorRowsIds } from '../../../state/authors';
+import { generatePath, useNavigate } from 'react-router';
+import { ROUTES } from '../../../constants';
 
 const AuthorsTable = () => {
+  const navigate = useNavigate();
+
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 10
@@ -31,6 +36,10 @@ const AuthorsTable = () => {
   ];
 
   const setSelectedRowsIds = useSetAtom(selectedAuthorRowsIds);
+
+  const onRowClick = (params: GridRowParams) => {
+    navigate(generatePath(ROUTES.editAuthor, { id: params.row.id }), { state: { author: params.row } });
+  };
 
   const onRowSelected = (newSelectionModel: GridRowSelectionModel) => {
     const selectionIds = new Set([...newSelectionModel.ids].map((id) => id.toString()));
@@ -83,7 +92,9 @@ const AuthorsTable = () => {
         noRowsOverlay: isError ? buildLoadingErrorOverlay : buildNoAuthorsFoundOverlay
       }}
       checkboxSelection
+      disableRowSelectionOnClick
       onRowSelectionModelChange={onRowSelected}
+      onRowClick={onRowClick}
       disableColumnSorting
       disableColumnFilter
     />
