@@ -140,6 +140,27 @@ describe('AppRoutes', () => {
       });
     });
 
+    it('renders edit author page for an admin user', async () => {
+      const adminUser = buildAuthUser({ scope: 'openid admin' });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      const author = sampleResponse.authors[0];
+      mock.onGet(`/v1/authors/${author.id}`).reply(200, author);
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={[`/authors/${author.id}`]}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Edit Author')).toBeInTheDocument();
+      });
+    });
+
     it('redirects to unauthorized page for a non-admin user', async () => {
       const regularUser = buildAuthUser({ scope: 'openid' });
       mockedUseAuth.mockReturnValue(
@@ -149,6 +170,25 @@ describe('AppRoutes', () => {
 
       render(
         <MemoryRouter initialEntries={['/authors/new']}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Unauthorized Access')).toBeInTheDocument();
+      });
+    });
+
+    it('redirects a non-admin user to the unauthorized page for the edit author route', async () => {
+      const regularUser = buildAuthUser({ scope: 'openid' });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
+      );
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={[`/authors/${sampleResponse.authors[0].id}`]}>
           <AppRoutes />
         </MemoryRouter>,
         { wrapper }

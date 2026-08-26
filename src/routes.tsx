@@ -21,6 +21,7 @@ const AppRoutes = () => {
           <Route path={ROUTES.authors} element={<AuthorsPage />} />
           <Route element={<AdminGate />}>
             <Route path={ROUTES.newAuthor} element={<AuthorPage />} />
+            <Route path={ROUTES.editAuthor} element={<AuthorPage />} />
           </Route>
         </Route>
       </Route>
