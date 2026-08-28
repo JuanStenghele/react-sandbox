@@ -24,7 +24,7 @@ const AuthorsTable = () => {
     pageSize: 10
   });
 
-  const { data, isLoading, isError } = useGetAuthors({
+  const { data, isFetching, isError } = useGetAuthors({
     search_term: '',
     page: paginationModel.page + 1,
     page_size: paginationModel.pageSize,
@@ -42,17 +42,7 @@ const AuthorsTable = () => {
   };
 
   const onRowSelected = (newSelectionModel: GridRowSelectionModel) => {
-    const selectionIds = new Set([...newSelectionModel.ids].map((id) => id.toString()));
-    if (newSelectionModel.type === 'exclude') {
-      const shownIds = new Set(data?.authors.map((author) => author.id));
-      setSelectedRowsIds(
-        shownIds.difference(selectionIds)
-      );
-    } else if (newSelectionModel.type === 'include') {
-      setSelectedRowsIds(
-        selectionIds
-      );
-    }
+    setSelectedRowsIds(new Set([...newSelectionModel.ids].map((id) => id.toString())));
   };
 
   const buildNoAuthorsFoundOverlay = () => {
@@ -82,7 +72,7 @@ const AuthorsTable = () => {
       rows={data?.authors ?? []}
       rowHeight={64.0}
       columns={columns}
-      loading={isLoading}
+      loading={isFetching}
       rowCount={data?.total_authors ?? 0}
       paginationMode='server'
       paginationModel={paginationModel}
@@ -91,8 +81,15 @@ const AuthorsTable = () => {
       slots={{
         noRowsOverlay: isError ? buildLoadingErrorOverlay : buildNoAuthorsFoundOverlay
       }}
+      slotProps={{
+        loadingOverlay: {
+          variant: 'skeleton',
+          noRowsVariant: 'skeleton'
+        }
+      }}
       checkboxSelection
       disableRowSelectionOnClick
+      disableRowSelectionExcludeModel
       onRowSelectionModelChange={onRowSelected}
       onRowClick={onRowClick}
       disableColumnSorting

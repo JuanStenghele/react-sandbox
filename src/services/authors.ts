@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import backend from './backend';
 import type { Author } from '../types/author';
 import { useSnackbar } from 'notistack';
@@ -60,7 +60,8 @@ export const getAuthors = async (params: GetAuthorsRequest): Promise<GetAuthorsR
 export const useGetAuthors = (params: GetAuthorsRequest) => {
   return useQuery({ 
     queryKey: ['authors', params], 
-    queryFn: () => getAuthors(params) 
+    queryFn: () => getAuthors(params),
+    placeholderData: keepPreviousData
   });
 };
 

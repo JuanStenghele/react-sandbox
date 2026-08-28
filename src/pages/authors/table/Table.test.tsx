@@ -96,6 +96,65 @@ describe('AuthorsTable', () => {
     });
   });
 
+  it('shows a loading indicator while fetching the next page', async () => {
+    const pageOneAuthors: Author[] = Array.from({ length: 10 }, (_, index) => ({
+      id: `author-${index + 1}`,
+      name: `Author ${index + 1}`,
+    }));
+    const pageTwoAuthors: Author[] = [{ id: 'author-11', name: 'Author 11' }];
+    const totalAuthors = pageOneAuthors.length + pageTwoAuthors.length;
+
+    let resolveDeferred!: (value: [number, GetAuthorsResponse]) => void;
+    const deferredResponse = new Promise<[number, GetAuthorsResponse]>((resolve) => {
+      resolveDeferred = resolve;
+    });
+
+    mock.onGet('/v1/authors').reply((config) => {
+      const page = config.params?.page;
+      return page === 1
+        ? [200, {
+            authors: pageOneAuthors,
+            total_authors: totalAuthors,
+            total_pages: 2,
+            current_page: 1,
+            page_size: 10,
+          }]
+        : deferredResponse;
+    });
+
+    const wrapper = buildWrapper();
+
+    const { container } = render(<AuthorsTable />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByText('Author 1')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+    await waitFor(() => {
+      expect(
+        container.querySelector('.MuiDataGrid-skeletonLoadingOverlay')
+      ).toBeInTheDocument();
+    });
+
+    resolveDeferred([200, {
+      authors: pageTwoAuthors,
+      total_authors: totalAuthors,
+      total_pages: 2,
+      current_page: 2,
+      page_size: 10,
+    }]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Author 11')).toBeInTheDocument();
+    });
+
+    expect(
+      container.querySelector('.MuiDataGrid-skeletonLoadingOverlay')
+    ).not.toBeInTheDocument();
+  });
+
   describe('row selection', () => {
     it('stores the selected row id when a row is included', async () => {
       mock.onGet('/v1/authors').reply(200, sampleResponse);
@@ -136,6 +195,57 @@ describe('AuthorsTable', () => {
 
       await userEvent.click(rowCheckbox);
       expect(store.get(selectedAuthorRowsIds)).toEqual(new Set());
+    });
+
+    it('selects only the rows on the current page when selecting all', async () => {
+      const pageOneAuthors: Author[] = Array.from({ length: 10 }, (_, index) => ({
+        id: `author-${index + 1}`,
+        name: `Author ${index + 1}`,
+      }));
+      const pageTwoAuthors: Author[] = [{ id: 'author-11', name: 'Author 11' }];
+      const totalAuthors = pageOneAuthors.length + pageTwoAuthors.length;
+
+      mock.onGet('/v1/authors').reply((config) => {
+        const page = config.params?.page;
+        return page === 1
+          ? [200, {
+              authors: pageOneAuthors,
+              total_authors: totalAuthors,
+              total_pages: 2,
+              current_page: 1,
+              page_size: 10,
+            }]
+          : [200, {
+              authors: pageTwoAuthors,
+              total_authors: totalAuthors,
+              total_pages: 2,
+              current_page: 2,
+              page_size: 10,
+            }];
+      });
+
+      const store = createStore();
+      const wrapper = buildWrapper(store);
+
+      render(<AuthorsTable />, { wrapper });
+
+      await waitFor(() => {
+        expect(screen.getByText('Author 1')).toBeInTheDocument();
+      });
+
+      await userEvent.click(screen.getAllByRole('checkbox')[0]);
+
+      expect(store.get(selectedAuthorRowsIds)).toEqual(
+        new Set(pageOneAuthors.map((author) => author.id))
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Author 11')).toBeInTheDocument();
+      });
+
+      expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
     });
   });
 
