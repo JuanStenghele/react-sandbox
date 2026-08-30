@@ -9,7 +9,7 @@ import MockAdapter from 'axios-mock-adapter';
 import backend from '../../../services/backend';
 import type { Author } from '../../../types/author';
 import type { GetAuthorsResponse } from '../../../services/authors';
-import { selectedAuthorRowsIds } from '../../../state/authors';
+import { authorsTableState } from '../../../state/authors';
 import { LocationDisplay } from '../../../test/utils';
 import AuthorsTable from './Table';
 import type { Store } from 'jotai/vanilla/store';
@@ -170,7 +170,7 @@ describe('AuthorsTable', () => {
       const rowCheckbox = screen.getAllByRole('checkbox')[1];
       await userEvent.click(rowCheckbox);
 
-      expect(store.get(selectedAuthorRowsIds)).toEqual(
+      expect(store.get(authorsTableState).selectedRowsIds).toEqual(
         new Set([sampleAuthor.id])
       );
     });
@@ -189,12 +189,12 @@ describe('AuthorsTable', () => {
       const [selectAllCheckbox, rowCheckbox] = screen.getAllByRole('checkbox');
 
       await userEvent.click(selectAllCheckbox);
-      expect(store.get(selectedAuthorRowsIds)).toEqual(
+      expect(store.get(authorsTableState).selectedRowsIds).toEqual(
         new Set([sampleAuthor.id])
       );
 
       await userEvent.click(rowCheckbox);
-      expect(store.get(selectedAuthorRowsIds)).toEqual(new Set());
+      expect(store.get(authorsTableState).selectedRowsIds).toEqual(new Set());
     });
 
     it('selects only the rows on the current page when selecting all', async () => {
@@ -235,7 +235,7 @@ describe('AuthorsTable', () => {
 
       await userEvent.click(screen.getAllByRole('checkbox')[0]);
 
-      expect(store.get(selectedAuthorRowsIds)).toEqual(
+      expect(store.get(authorsTableState).selectedRowsIds).toEqual(
         new Set(pageOneAuthors.map((author) => author.id))
       );
 

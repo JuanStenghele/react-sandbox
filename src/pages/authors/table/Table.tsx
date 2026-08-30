@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   DataGrid,
   GridOverlay,
@@ -11,23 +10,19 @@ import { useGetAuthors } from '../../../services/authors';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import ErrorIcon from '@mui/icons-material/Error';
 import { Typography } from '@mui/material';
-import { useSetAtom } from 'jotai';
-import { selectedAuthorRowsIds } from '../../../state/authors';
+import { useAtom } from 'jotai';
+import { authorsTableState, type AuthorsTableState } from '../../../state/authors';
 import { generatePath, useNavigate } from 'react-router';
 import { ROUTES } from '../../../constants';
 
 const AuthorsTable = () => {
   const navigate = useNavigate();
-
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 10
-  });
+  const [tableState, setTableState] = useAtom(authorsTableState);
 
   const { data, isFetching, isError } = useGetAuthors({
-    search_term: '',
-    page: paginationModel.page + 1,
-    page_size: paginationModel.pageSize,
+    search_term: tableState.searchTerm,
+    page: tableState.page + 1,
+    page_size: tableState.pageSize
   });
 
   const columns: GridColDef[] = [
@@ -35,14 +30,23 @@ const AuthorsTable = () => {
     { field: 'name', headerName: 'Name', width: 248.0 }
   ];
 
-  const setSelectedRowsIds = useSetAtom(selectedAuthorRowsIds);
-
   const onRowClick = (params: GridRowParams) => {
     navigate(generatePath(ROUTES.editAuthor, { id: params.row.id }), { state: { author: params.row } });
   };
 
   const onRowSelected = (newSelectionModel: GridRowSelectionModel) => {
-    setSelectedRowsIds(new Set([...newSelectionModel.ids].map((id) => id.toString())));
+    setTableState((prev: AuthorsTableState) => ({
+      ...prev,
+      selectedRowsIds: new Set([...newSelectionModel.ids].map((id) => id.toString()))
+    }));
+  };
+
+  const onPaginationChange = (model: GridPaginationModel) => {
+    setTableState((prev: AuthorsTableState) => ({
+      ...prev,
+      page: model.page,
+      pageSize: model.pageSize
+    }));
   };
 
   const buildNoAuthorsFoundOverlay = () => {
@@ -75,8 +79,11 @@ const AuthorsTable = () => {
       loading={isFetching}
       rowCount={data?.total_authors ?? 0}
       paginationMode='server'
-      paginationModel={paginationModel}
-      onPaginationModelChange={setPaginationModel}
+      paginationModel={{
+        page: tableState.page,
+        pageSize: tableState.pageSize
+      }}
+      onPaginationModelChange={onPaginationChange}
       pageSizeOptions={[10, 20, 50, 100]}
       slots={{
         noRowsOverlay: isError ? buildLoadingErrorOverlay : buildNoAuthorsFoundOverlay

@@ -11,7 +11,8 @@ import type { Store } from 'jotai/vanilla/store';
 import { buildAuthProps, buildAuthUser, LocationDisplay } from '../../test/utils';
 import backend from '../../services/backend';
 import type { GetAuthorsResponse } from '../../services/authors';
-import { selectedAuthorRowsIds } from '../../state/authors';
+import type { Author } from '../../types/author';
+import { authorsTableState } from '../../state/authors';
 import AuthorsPage from './Authors';
 
 vi.mock('react-oidc-context');
@@ -138,7 +139,12 @@ describe('AuthorsPage', () => {
       });
       mock.onDelete('/v1/authors').reply(() => deferredResponse);
       const store = createStore();
-      store.set(selectedAuthorRowsIds, new Set([sampleResponse.authors[0].id]));
+      store.set(authorsTableState, {
+        searchTerm: '',
+        page: 0,
+        pageSize: 10,
+        selectedRowsIds: new Set([sampleResponse.authors[0].id]),
+      });
       const wrapper = buildWrapper(store);
 
       render(<AuthorsPage />, { wrapper });
@@ -164,7 +170,12 @@ describe('AuthorsPage', () => {
       );
       mock.onDelete('/v1/authors').reply(200);
       const store = createStore();
-      store.set(selectedAuthorRowsIds, new Set([sampleResponse.authors[0].id]));
+      store.set(authorsTableState, {
+        searchTerm: '',
+        page: 0,
+        pageSize: 10,
+        selectedRowsIds: new Set([sampleResponse.authors[0].id]),
+      });
       const wrapper = buildWrapper(store);
 
       render(<AuthorsPage />, { wrapper });
@@ -177,6 +188,87 @@ describe('AuthorsPage', () => {
       expect(mock.history.delete[0].params?.toString()).toBe(
         `ids=${sampleResponse.authors[0].id}`
       );
+    });
+  });
+
+  describe('search field', () => {
+    it('sends the search term to the backend', async () => {
+      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      mock.onGet('/v1/authors').reply(200, sampleResponse);
+      const wrapper = buildWrapper();
+
+      render(<AuthorsPage />, { wrapper });
+
+      await waitFor(() => {
+        expect(screen.getByText('Jane Austen')).toBeInTheDocument();
+      });
+
+      await userEvent.type(screen.getByPlaceholderText('Search...'), 'Jane');
+
+      await waitFor(() => {
+        const lastRequest = mock.history.get[mock.history.get.length - 1];
+        expect(lastRequest.params?.search_term).toBe('Jane');
+      });
+    });
+
+    it('resets to the first page when the search term changes', async () => {
+      const pageOneAuthors: Author[] = Array.from({ length: 10 }, (_, index) => ({
+        id: `author-${index + 1}`,
+        name: `Author ${index + 1}`,
+      }));
+      const pageTwoAuthors: Author[] = [{ id: 'author-11', name: 'Author 11' }];
+      const totalAuthors = pageOneAuthors.length + pageTwoAuthors.length;
+
+      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+
+      mock.onGet('/v1/authors').reply((config) => {
+        const page = config.params?.page;
+        return page === 1
+          ? [200, {
+              authors: pageOneAuthors,
+              total_authors: totalAuthors,
+              total_pages: 2,
+              current_page: 1,
+              page_size: 10,
+            }]
+          : [200, {
+              authors: pageTwoAuthors,
+              total_authors: totalAuthors,
+              total_pages: 2,
+              current_page: 2,
+              page_size: 10,
+            }];
+      });
+
+      const store = createStore();
+      const wrapper = buildWrapper(store);
+
+      render(<AuthorsPage />, { wrapper });
+
+      await waitFor(() => {
+        expect(screen.getByText('Author 1')).toBeInTheDocument();
+      });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Author 11')).toBeInTheDocument();
+      });
+
+      expect(store.get(authorsTableState).page).toBe(1);
+
+      await userEvent.type(screen.getByPlaceholderText('Search...'), 'x');
+
+      await waitFor(() => {
+        expect(store.get(authorsTableState).page).toBe(0);
+      });
+      expect(store.get(authorsTableState).searchTerm).toBe('x');
     });
   });
 });

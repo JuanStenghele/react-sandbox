@@ -1,18 +1,20 @@
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, TextField, InputAdornment } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AuthorsTable from './table/Table';
 import { useNavigate } from 'react-router';
 import { adminScope, ROUTES } from '../../constants';
 import { useHasPermission } from '../../services/auth';
-import { useAtomValue } from 'jotai';
-import { selectedAuthorRowsIds } from '../../state/authors';
+import { useAtom } from 'jotai';
+import { authorsTableState, type AuthorsTableState } from '../../state/authors';
 import { useDeleteAuthors } from '../../services/authors';
+import SearchIcon from '@mui/icons-material/Search';
+import type { ChangeEvent } from 'react';
   
 const AuthorsPage = () => {
   const isUserAdmin = useHasPermission(adminScope);
   const navigate = useNavigate();
-  const selectedRowsIds = useAtomValue(selectedAuthorRowsIds);
+  const [tableState, setTableState] = useAtom(authorsTableState);
 
   const { mutate, isPending: isDeletePending } = useDeleteAuthors();
 
@@ -20,10 +22,18 @@ const AuthorsPage = () => {
     navigate(ROUTES.newAuthor);
   };
 
-  const isDeleteButtonDisabled = !isUserAdmin || selectedRowsIds.size === 0;
+  const isDeleteButtonDisabled = !isUserAdmin || tableState.selectedRowsIds.size === 0;
 
   const onDeleteButtonClick = () => {
-    mutate({ ids: [...selectedRowsIds] });
+    mutate({ ids: [...tableState.selectedRowsIds] });
+  };
+
+  const onSearchTermChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setTableState((prev: AuthorsTableState) => ({
+      ...prev,
+      searchTerm: event.target.value,
+      page: 0
+    }));
   };
 
   return (
@@ -57,6 +67,27 @@ const AuthorsPage = () => {
         >
           Delete
         </Button>
+        <TextField 
+          value={tableState.searchTerm}
+          placeholder='Search...'
+          variant='outlined'
+          onChange={onSearchTermChange}
+          sx={{
+            width: 440.0,
+            '& .MuiInputBase-root': {
+              height: 48.0
+            }
+          }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position='start'>
+                  <SearchIcon />
+                </InputAdornment>
+              )
+            }
+          }}
+        />
       </Box>
       <Box sx={{ flexGrow: 1, minHeight: 0 }}>
         <AuthorsTable />
