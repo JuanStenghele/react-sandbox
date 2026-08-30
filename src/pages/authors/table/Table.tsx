@@ -14,13 +14,15 @@ import { useAtom } from 'jotai';
 import { authorsTableState, type AuthorsTableState } from '../../../state/authors';
 import { generatePath, useNavigate } from 'react-router';
 import { ROUTES } from '../../../constants';
+import { useDebounce } from 'use-debounce';
 
 const AuthorsTable = () => {
   const navigate = useNavigate();
   const [tableState, setTableState] = useAtom(authorsTableState);
+  const [debouncedSearchTerm] = useDebounce(tableState.searchTerm, 300);
 
   const { data, isFetching, isError } = useGetAuthors({
-    search_term: tableState.searchTerm,
+    search_term: debouncedSearchTerm,
     page: tableState.page + 1,
     page_size: tableState.pageSize
   });

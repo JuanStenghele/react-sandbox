@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -36,6 +36,7 @@ describe('AuthorsPage', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
     mock.reset();
   });
 
@@ -192,7 +193,8 @@ describe('AuthorsPage', () => {
   });
 
   describe('search field', () => {
-    it('sends the search term to the backend', async () => {
+    it('sends the search term to the backend after the debounce delay', async () => {
+      vi.useFakeTimers();
       const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
@@ -202,16 +204,24 @@ describe('AuthorsPage', () => {
 
       render(<AuthorsPage />, { wrapper });
 
-      await waitFor(() => {
-        expect(screen.getByText('Jane Austen')).toBeInTheDocument();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(0);
       });
 
-      await userEvent.type(screen.getByPlaceholderText('Search...'), 'Jane');
+      expect(screen.getByText('Jane Austen')).toBeInTheDocument();
 
-      await waitFor(() => {
-        const lastRequest = mock.history.get[mock.history.get.length - 1];
-        expect(lastRequest.params?.search_term).toBe('Jane');
+      fireEvent.change(screen.getByPlaceholderText('Search...'), {
+        target: { value: 'Jane' },
       });
+
+      expect(mock.history.get[mock.history.get.length - 1].params?.search_term).toBe('');
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(300);
+      });
+
+      const lastRequest = mock.history.get[mock.history.get.length - 1];
+      expect(lastRequest.params?.search_term).toBe('Jane');
     });
 
     it('resets to the first page when the search term changes', async () => {
