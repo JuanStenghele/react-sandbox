@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   DataGrid,
   GridOverlay,
@@ -10,17 +9,18 @@ import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import ErrorIcon from '@mui/icons-material/Error';
 import { Typography } from '@mui/material';
 import BooksTableCoverImage from './CoverImage'
+import { useAtom } from 'jotai';
+import { booksTableState, type BooksTableState } from '../../../state/books';
+import { useDebounce } from 'use-debounce';
 
 const BooksTable = () => {
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    page: 0,
-    pageSize: 10
-  });
+  const [tableState, setTableState] = useAtom(booksTableState);
+  const [debouncedSearchTerm] = useDebounce(tableState.searchTerm, 300);
 
-  const { data, isLoading, isError } = useGetBooks({
-    search_term: '',
-    page: paginationModel.page + 1,
-    page_size: paginationModel.pageSize,
+  const { data, isFetching, isError } = useGetBooks({
+    search_term: debouncedSearchTerm,
+    page: tableState.page + 1,
+    page_size: tableState.pageSize,
   });
 
   const columns: GridColDef[] = [
@@ -44,6 +44,14 @@ const BooksTable = () => {
     { field: 'publication_date', headerName: 'Publication Date', type: 'date', width: 148.0 },
     { field: 'created_at', headerName: 'Created At', type: 'dateTime', width: 148.0 }
   ];
+
+  const onPaginationChange = (model: GridPaginationModel) => {
+    setTableState((prev: BooksTableState) => ({
+      ...prev,
+      page: model.page,
+      pageSize: model.pageSize
+    }));
+  };
 
   const buildNoBooksFoundOverlay = () => {
     return (
@@ -72,14 +80,23 @@ const BooksTable = () => {
       rows={data?.books ?? []}
       rowHeight={64.0}
       columns={columns}
-      loading={isLoading}
+      loading={isFetching}
       rowCount={data?.total_books ?? 0}
       paginationMode='server'
-      paginationModel={paginationModel}
-      onPaginationModelChange={setPaginationModel}
+      paginationModel={{
+        page: tableState.page,
+        pageSize: tableState.pageSize
+      }}
+      onPaginationModelChange={onPaginationChange}
       pageSizeOptions={[10, 20, 50, 100]}
       slots={{
         noRowsOverlay: isError ? buildLoadingErrorOverlay : buildNoBooksFoundOverlay
+      }}
+      slotProps={{
+        loadingOverlay: {
+          variant: 'skeleton',
+          noRowsVariant: 'skeleton'
+        }
       }}
       checkboxSelection
       disableColumnSorting

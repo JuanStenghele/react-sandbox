@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import backend from "./backend";
 import type { Book } from "../types/book";
 
@@ -45,5 +45,9 @@ export const getBooks = async (params: GetBooksRequest): Promise<GetBooksRespons
 };
 
 export const useGetBooks = (params: GetBooksRequest) => {
-  return useQuery({ queryKey: ["books", params], queryFn: () => getBooks(params) });
+  return useQuery({
+    queryKey: ["books", params],
+    queryFn: () => getBooks(params),
+    placeholderData: keepPreviousData
+  });
 };
