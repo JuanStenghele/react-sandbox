@@ -38,6 +38,19 @@ export const usePostAuthor = () => {
   });
 };
 
+export const getAuthor = async (id: string): Promise<Author> => {
+  const response = await backend.get<Author>(`/v1/authors/${id}`);
+  return response.data;
+};
+
+export const useGetAuthor = (id: string | undefined, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ['authors', id],
+    queryFn: () => getAuthor(id as string),
+    enabled: enabled && !!id,
+  });
+};
+
 export interface GetAuthorsRequest {
   search_term: string;
   page: number;
@@ -62,19 +75,6 @@ export const useGetAuthors = (params: GetAuthorsRequest) => {
     queryKey: ['authors', params], 
     queryFn: () => getAuthors(params),
     placeholderData: keepPreviousData
-  });
-};
-
-export const getAuthor = async (id: string): Promise<Author> => {
-  const response = await backend.get<Author>(`/v1/authors/${id}`);
-  return response.data;
-};
-
-export const useGetAuthor = (id: string | undefined, enabled: boolean = true) => {
-  return useQuery({
-    queryKey: ['authors', id],
-    queryFn: () => getAuthor(id as string),
-    enabled: enabled && !!id,
   });
 };
 
