@@ -1,4 +1,4 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import backend from './backend';
 import type { Author } from '../types/author';
 import { useSnackbar } from 'notistack';
@@ -75,6 +75,23 @@ export const useGetAuthors = (params: GetAuthorsRequest) => {
     queryKey: ['authors', params], 
     queryFn: () => getAuthors(params),
     placeholderData: keepPreviousData
+  });
+};
+
+export interface GetInfiniteAuthorsRequest {
+  search_term: string;
+}
+
+export const useGetInfiniteAuthors = (params: GetInfiniteAuthorsRequest) => {
+  return useInfiniteQuery({
+    queryKey: ['authors', params],
+    queryFn: ({ pageParam }) => getAuthors({
+      search_term: params.search_term,
+      page: pageParam,
+      page_size: 10
+    }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.current_page < lastPage.total_pages ? lastPage.current_page + 1 : undefined
   });
 };
 

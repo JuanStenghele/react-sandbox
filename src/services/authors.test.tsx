@@ -3,8 +3,8 @@ import backend from './backend';
 import MockAdapter from 'axios-mock-adapter';
 import type { Author } from '../types/author';
 import type { DeleteAuthorsRequest, GetAuthorsResponse, PatchAuthorRequest, PatchAuthorResponse, PostAuthorResponse } from './authors';
-import { postAuthor, usePostAuthor, getAuthors, useGetAuthors, getAuthor, useGetAuthor, patchAuthor, usePatchAuthor, deleteAuthors, useDeleteAuthors } from './authors';
-import { renderHook, waitFor } from '@testing-library/react';
+import { postAuthor, usePostAuthor, getAuthors, useGetAuthors, getAuthor, useGetAuthor, useGetInfiniteAuthors, patchAuthor, usePatchAuthor, deleteAuthors, useDeleteAuthors } from './authors';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 import type { ReactNode } from 'react';
@@ -249,6 +249,95 @@ describe('authors service', () => {
       expect(result.current.fetchStatus).toBe('idle');
       expect(result.current.data).toBeUndefined();
       expect(mock.history.get).toHaveLength(0);
+    });
+
+    it('handles a successful useGetInfiniteAuthors query', async () => {
+      mock.onGet('/v1/authors').reply(200, sampleGetAuthorsResponse);
+      const wrapper = buildWrapper();
+
+      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '' }), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(result.current.isError).toBe(false);
+      });
+      expect(result.current.data?.pages).toHaveLength(1);
+      expect(result.current.data?.pages[0].authors).toEqual([sampleAuthor]);
+      expect(result.current.hasNextPage).toBe(false);
+    });
+
+    it('handles a failed useGetInfiniteAuthors query', async () => {
+      mock.onGet('/v1/authors').reply(500);
+      const wrapper = buildWrapper();
+
+      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '' }), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(false);
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toBeDefined();
+    });
+
+    it('fetches the next page when useGetInfiniteAuthors has more pages', async () => {
+      const pageOneAuthors: Author[] = Array.from({ length: 10 }, (_, index) => ({
+        id: `author-${index + 1}`,
+        name: `Author ${index + 1}`,
+      }));
+      const pageTwoAuthors: Author[] = [{ id: 'author-11', name: 'Author 11' }];
+      const totalAuthors = pageOneAuthors.length + pageTwoAuthors.length;
+
+      mock.onGet('/v1/authors').reply((config) => {
+        const page = config.params?.page;
+        return page === 1
+          ? [200, {
+              authors: pageOneAuthors,
+              total_authors: totalAuthors,
+              total_pages: 2,
+              current_page: 1,
+              page_size: 10,
+            }]
+          : [200, {
+              authors: pageTwoAuthors,
+              total_authors: totalAuthors,
+              total_pages: 2,
+              current_page: 2,
+              page_size: 10,
+            }];
+      });
+
+      const wrapper = buildWrapper();
+      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '' }), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+      expect(result.current.hasNextPage).toBe(true);
+
+      await act(async () => {
+        await result.current.fetchNextPage();
+      });
+
+      await waitFor(() => {
+        expect(result.current.data?.pages).toHaveLength(2);
+      });
+      expect(result.current.data?.pages[1].authors).toEqual(pageTwoAuthors);
+      expect(result.current.hasNextPage).toBe(false);
+    });
+
+    it('sends the search term when fetching infinite authors', async () => {
+      mock.onGet('/v1/authors').reply(200, sampleGetAuthorsResponse);
+      const wrapper = buildWrapper();
+
+      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: 'Jane' }), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+      });
+
+      expect(mock.history.get[0].params?.search_term).toBe('Jane');
+      expect(mock.history.get[0].params?.page).toBe(1);
+      expect(mock.history.get[0].params?.page_size).toBe(10);
     });
 
     it('handles a successful usePatchAuthor mutation', async () => {
