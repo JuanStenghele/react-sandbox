@@ -11,7 +11,10 @@ interface AuthorSelectorProps {
 const AuthorSelector = (props: AuthorSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useGetInfiniteAuthors({ search_term: searchTerm });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useGetInfiniteAuthors({ 
+    search_term: searchTerm, 
+    page_size: 10 
+  });
 
   const initialLoadingComponent = () => (
     <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.0 }}>

@@ -80,6 +80,7 @@ export const useGetAuthors = (params: GetAuthorsRequest) => {
 
 export interface GetInfiniteAuthorsRequest {
   search_term: string;
+  page_size: number;
 }
 
 export const useGetInfiniteAuthors = (params: GetInfiniteAuthorsRequest) => {
@@ -88,7 +89,7 @@ export const useGetInfiniteAuthors = (params: GetInfiniteAuthorsRequest) => {
     queryFn: ({ pageParam }) => getAuthors({
       search_term: params.search_term,
       page: pageParam,
-      page_size: 10
+      page_size: params.page_size
     }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.current_page < lastPage.total_pages ? lastPage.current_page + 1 : undefined

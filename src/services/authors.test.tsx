@@ -255,7 +255,7 @@ describe('authors service', () => {
       mock.onGet('/v1/authors').reply(200, sampleGetAuthorsResponse);
       const wrapper = buildWrapper();
 
-      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '' }), { wrapper });
+      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '', page_size: 10 }), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
@@ -270,7 +270,7 @@ describe('authors service', () => {
       mock.onGet('/v1/authors').reply(500);
       const wrapper = buildWrapper();
 
-      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '' }), { wrapper });
+      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '', page_size: 10 }), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(false);
@@ -307,7 +307,7 @@ describe('authors service', () => {
       });
 
       const wrapper = buildWrapper();
-      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '' }), { wrapper });
+      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: '', page_size: 10 }), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
@@ -329,7 +329,7 @@ describe('authors service', () => {
       mock.onGet('/v1/authors').reply(200, sampleGetAuthorsResponse);
       const wrapper = buildWrapper();
 
-      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: 'Jane' }), { wrapper });
+      const { result } = renderHook(() => useGetInfiniteAuthors({ search_term: 'Jane', page_size: 10 }), { wrapper });
 
       await waitFor(() => {
         expect(result.current.isSuccess).toBe(true);
