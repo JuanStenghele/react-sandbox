@@ -16,25 +16,6 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
     page_size: 10 
   });
 
-  const initialLoadingComponent = () => (
-    <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.0 }}>
-      <CircularProgress size={20.0} />
-    </Box>
-  );
-
-  const optionComponent = (props: HTMLAttributes<HTMLLIElement> & { key: React.Key }, option: Author) => (
-    <Box component='li' {...props} key={option.id}>
-      {`${option.name} (${option.id})`}
-    </Box>
-  );
-
-  const inputComponent = (params: AutocompleteRenderInputParams) => (
-    <TextField
-      {...params}
-      label='Author'
-    />
-  );
-
   const handleScroll = (event: UIEvent<HTMLUListElement>) => {
     const listboxNode = event.currentTarget;
     const isBottom = listboxNode.scrollTop + listboxNode.clientHeight >= listboxNode.scrollHeight - 20.0;
@@ -50,13 +31,21 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
       options={authors}
       sx={{ width: props.width }}
       loading={isLoading}
-      loadingText={initialLoadingComponent()}
+      loadingText={(
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.0 }}>
+          <CircularProgress size={20.0} />
+        </Box>
+      )}
       getOptionLabel={(option) => `${option.name} (${option.id})`}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       onInputChange={(_, value) => {
         setSearchTerm(value);
       }}
-      renderOption={optionComponent}
+      renderOption={(props, option: Author) => (
+        <Box component='li' {...props} key={option.id}>
+          {`${option.name} (${option.id})`}
+        </Box>        
+      )}
       slotProps={{
         listbox: {
           component: ListboxComponent,
@@ -64,7 +53,12 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
           ...({ loadingMore: isFetchingNextPage } as ListboxComponentProps)
         }
       }}
-      renderInput={inputComponent}
+      renderInput={(params: AutocompleteRenderInputParams) => (
+        <TextField
+          {...params}
+          label='Author'
+        />
+      )}
     />
   );
 };
