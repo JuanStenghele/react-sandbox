@@ -33,6 +33,8 @@ describe('CoverImagePicker', () => {
 
     await userEvent.upload(input, dummyFile);
 
-    expect(input.files).toHaveLength(1);
+    const image = screen.queryByAltText('Cover Image');
+
+    expect(image).toBeVisible();
   });
 });
