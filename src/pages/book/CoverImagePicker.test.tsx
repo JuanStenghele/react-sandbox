@@ -39,4 +39,18 @@ describe('CoverImagePicker', () => {
     expect(image).toBeVisible();
     expect(explanatoryText).toBeNull();
   });
+
+  it('removes the image when the user deletes it', async () => {
+    render(<CoverImagePicker />);
+    const dummyFile = new File(['data'], 'hello.png', { type: 'image/png' });
+    const input = screen.getByLabelText('Cover image input') as HTMLInputElement;
+
+    await userEvent.upload(input, dummyFile);
+    expect(screen.getByAltText('Cover Image')).toBeVisible();
+
+    await userEvent.click(screen.getByTestId('delete-cover-image'));
+
+    expect(screen.queryByAltText('Cover Image')).toBeNull();
+    expect(screen.queryByText('Select a cover image...')).toBeVisible();
+  });
 });

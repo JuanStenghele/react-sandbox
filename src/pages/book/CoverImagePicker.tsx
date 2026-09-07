@@ -99,6 +99,7 @@ const CoverImagePicker = (props: CoverImagePickerProps) => {
               onClick={onDeleteCoverImageClicked}
             >
               <CancelRoundedIcon 
+                data-testid='delete-cover-image'
                 sx={{ color: '#A9A9A9' }}
               />
             </Box>
