@@ -34,7 +34,9 @@ describe('CoverImagePicker', () => {
     await userEvent.upload(input, dummyFile);
 
     const image = screen.queryByAltText('Cover Image');
+    const explanatoryText = screen.queryByText('Select a cover image...');
 
     expect(image).toBeVisible();
+    expect(explanatoryText).toBeNull();
   });
 });
