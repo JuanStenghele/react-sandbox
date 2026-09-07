@@ -6,15 +6,37 @@ import { useRef, useState, type ChangeEvent } from 'react';
 interface CoverImagePickerProps {
   width?: number;
   height?: number;
+  imageURL?: string;
 }
 
 const CoverImagePicker = (props: CoverImagePickerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [showExternalImage, setShowExternalImage] = useState<boolean>(props.imageURL !== undefined);
+  const [localCoverImage, setLocalCoverImage] = useState<File | null>(null);
 
   const onCoverImageSelected = (file: File) => {
-    setCoverImage(file);
+    setLocalCoverImage(file);
   };
+
+  const onDeleteCoverImageClicked = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (showExternalImage) {
+      setShowExternalImage(false);
+    } else if (localCoverImage) {
+      setLocalCoverImage(null);
+    }
+  };
+
+  const getDisplayedImageURL = () => {
+    if (localCoverImage) {
+      return URL.createObjectURL(localCoverImage);
+    } else if (props.imageURL) {
+      return props.imageURL;
+    }
+    return null;
+  }
+
+  const displayedImageURL: string | null = getDisplayedImageURL();
 
   return (
     <Box
@@ -34,6 +56,7 @@ const CoverImagePicker = (props: CoverImagePickerProps) => {
       }}
     >
       <input
+        aria-label='Cover image input'
         ref={inputRef}
         type='file'
         hidden
@@ -44,7 +67,7 @@ const CoverImagePicker = (props: CoverImagePickerProps) => {
         }}
       />
       {
-        coverImage ? (
+        displayedImageURL ? (
           <Box 
             sx={{
               position: 'relative',
@@ -57,7 +80,7 @@ const CoverImagePicker = (props: CoverImagePickerProps) => {
           >
             <Box
               component='img'
-              src={URL.createObjectURL(coverImage)}
+              src={displayedImageURL}
               alt='Cover Image'
               sx={{
                 height: '100%',
@@ -73,10 +96,7 @@ const CoverImagePicker = (props: CoverImagePickerProps) => {
                 right: 6.0,
                 zIndex: 2
               }}
-              onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-                event.stopPropagation();
-                setCoverImage(null);
-              }}
+              onClick={onDeleteCoverImageClicked}
             >
               <CancelRoundedIcon 
                 sx={{ color: '#A9A9A9' }}
