@@ -44,9 +44,11 @@ const CoverImagePicker = (props: CoverImagePickerProps) => {
       sx={{
         width: props.width || 300.0,
         height: props.height || 400.0,
-        border: '2px solid #D3D3D3',
-        borderRadius: 2.0,
-        borderStyle: 'dashed',
+        border: '1px solid rgba(0, 0, 0, 0.23)',
+        borderRadius: 1.0,
+        '&:hover': {
+          border: '1px solid rgba(0, 0, 0, 0.87)'
+        },
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -100,19 +102,19 @@ const CoverImagePicker = (props: CoverImagePickerProps) => {
             >
               <CancelRoundedIcon 
                 data-testid='delete-cover-image'
-                sx={{ color: '#A9A9A9' }}
+                sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
               />
             </Box>
           </Box>
         ) : (
           <>
             <ImageSearchRoundedIcon
-              sx={{ color: '#A9A9A9' }}
+              sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
               fontSize='large'
             />
             <Typography 
               variant='body1'
-              sx={{ color: '#A9A9A9' }}
+              sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
             >
               Select a cover image...
             </Typography>
