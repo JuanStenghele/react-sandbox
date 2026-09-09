@@ -1,11 +1,26 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import CoverImagePicker from './CoverImagePicker';
+import { useState } from 'react';
+import BookCoverImagePicker from './CoverImagePicker';
 import userEvent from '@testing-library/user-event';
 
-describe('CoverImagePicker', () => {
+describe('BookCoverImagePicker', () => {
+  const onChangeMock = vi.fn();
+
+  beforeEach(() => {
+    URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+  });
+
+  const buildControlledWrapper = () => {
+    const TestComponent = () => {
+      const [value, setValue] = useState<File | null>(null);
+      return <BookCoverImagePicker value={value} onChange={setValue} />;
+    };
+    return TestComponent;
+  };
+
   it('renders an explanatory text when no existing image is provided', () => {
-    render(<CoverImagePicker />);
+    render(<BookCoverImagePicker onChange={onChangeMock} />);
 
     const input = screen.getByLabelText('Cover image input');
     const image = screen.queryByAltText('Cover Image');
@@ -17,7 +32,7 @@ describe('CoverImagePicker', () => {
   });
 
   it('renders an image when an existing image is provided', () => {
-    render(<CoverImagePicker imageURL="https://example.com/cover.jpg" />);
+    render(<BookCoverImagePicker onChange={onChangeMock} imageURL="https://example.com/cover.jpg" />);
 
     const image = screen.queryByAltText('Cover Image');
     const explanatoryText = screen.queryByText('Select a cover image...');
@@ -27,7 +42,8 @@ describe('CoverImagePicker', () => {
   });
 
   it('displays the image that the user selects from their local file system', async () => {
-    render(<CoverImagePicker />);
+    const Wrapper = buildControlledWrapper();
+    render(<Wrapper />);
     const dummyFile = new File(['data'], 'hello.png', { type: 'image/png' });
     const input = screen.getByLabelText('Cover image input') as HTMLInputElement;
 
@@ -41,7 +57,8 @@ describe('CoverImagePicker', () => {
   });
 
   it('removes the image when the user deletes it', async () => {
-    render(<CoverImagePicker />);
+    const Wrapper = buildControlledWrapper();
+    render(<Wrapper />);
     const dummyFile = new File(['data'], 'hello.png', { type: 'image/png' });
     const input = screen.getByLabelText('Cover image input') as HTMLInputElement;
 

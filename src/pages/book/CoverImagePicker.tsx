@@ -3,33 +3,34 @@ import ImageSearchRoundedIcon from '@mui/icons-material/ImageSearchRounded';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { useRef, useState, type ChangeEvent } from 'react';
 
-interface CoverImagePickerProps {
+interface BookCoverImagePickerProps {
   width?: number;
   height?: number;
   imageURL?: string;
+  value?: File;
+  onChange: (coverImage: File | null) => void;
 }
 
-const CoverImagePicker = (props: CoverImagePickerProps) => {
+const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [showExternalImage, setShowExternalImage] = useState<boolean>(props.imageURL !== undefined);
-  const [localCoverImage, setLocalCoverImage] = useState<File | null>(null);
 
   const onCoverImageSelected = (file: File) => {
-    setLocalCoverImage(file);
+    props.onChange?.(file);
   };
 
   const onDeleteCoverImageClicked = (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     if (showExternalImage) {
       setShowExternalImage(false);
-    } else if (localCoverImage) {
-      setLocalCoverImage(null);
+    } else if (props.value) {
+      props.onChange(null);
     }
   };
 
   const getDisplayedImageURL = () => {
-    if (localCoverImage) {
-      return URL.createObjectURL(localCoverImage);
+    if (props.value) {
+      return URL.createObjectURL(props.value);
     } else if (props.imageURL) {
       return props.imageURL;
     }
@@ -125,4 +126,4 @@ const CoverImagePicker = (props: CoverImagePickerProps) => {
   );
 };
 
-export default CoverImagePicker;
+export default BookCoverImagePicker;
