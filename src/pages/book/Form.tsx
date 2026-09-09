@@ -144,11 +144,9 @@ const BookForm = (props: BookPageProps) => {
           name='publicationDate'
           control={control}
           render={({ field }) => (
-            <LocalizationProvider 
-              {...field}
-              dateAdapter={AdapterDateFns}
-            >
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
+                {...field}
                 disableFuture
                 label='Publication Date'
                 minDate={minDate}
