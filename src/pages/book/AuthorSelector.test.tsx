@@ -81,6 +81,73 @@ describe('AuthorSelector', () => {
     });
   });
 
+  it('fetches and displays the author by id when the value is not in the fetched list', async () => {
+    const missingAuthor: Author = {
+      id: 'missing-author-id',
+      name: 'Missing Author',
+    };
+    mock.onGet('/v1/authors').reply(200, sampleResponse);
+    mock.onGet(/\/v1\/authors\/[^/]+/).reply(200, missingAuthor);
+    const wrapper = buildWrapper();
+
+    render(<AuthorSelector value={missingAuthor.id} />, { wrapper });
+
+    await waitFor(() => {
+      expect(
+        screen.getByDisplayValue('Missing Author (missing-author-id)')
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('keeps the fetched author as the selected option when it is later loaded in a page', async () => {
+    const valueAuthor: Author = { id: 'author-11', name: 'Author 11' };
+    const pageOneAuthors: Author[] = Array.from({ length: 10 }, (_, index) => ({
+      id: `author-${index + 1}`,
+      name: `Author ${index + 1}`,
+    }));
+
+    mock.onGet('/v1/authors').reply((config) => {
+      const page = config.params?.page;
+      return page === 1
+        ? [200, {
+            authors: pageOneAuthors,
+            total_authors: 11,
+            total_pages: 2,
+            current_page: 1,
+            page_size: 10,
+          }]
+        : [200, {
+            authors: [valueAuthor],
+            total_authors: 11,
+            total_pages: 2,
+            current_page: 2,
+            page_size: 10,
+          }];
+    });
+    mock.onGet(/\/v1\/authors\/[^/]+/).reply(200, valueAuthor);
+    const wrapper = buildWrapper();
+
+    render(<AuthorSelector value={valueAuthor.id} />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('Author 11 (author-11)')).toBeInTheDocument();
+    });
+
+    await userEvent.click(screen.getByRole('combobox'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Author 1 (author-1)')).toBeInTheDocument();
+    });
+
+    fireEvent.scroll(screen.getByRole('listbox'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Author 11 (author-11)')).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByText('Author 11 (author-11)')).toHaveLength(1);
+  });
+
   it('sends the search term to the backend when the input changes', async () => {
     mock.onGet('/v1/authors').reply(200, sampleResponse);
     const wrapper = buildWrapper();

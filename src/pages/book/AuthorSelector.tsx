@@ -2,7 +2,7 @@ import { Autocomplete, Box, CircularProgress, TextField, type AutocompleteRender
 import type { Author } from '../../types/author';
 import { forwardRef, useState } from 'react';
 import type { HTMLAttributes, UIEvent } from 'react';
-import { useGetInfiniteAuthors } from '../../services/authors';
+import { useGetAuthor, useGetInfiniteAuthors } from '../../services/authors';
 
 interface AuthorSelectorProps {
   width?: number;
@@ -30,10 +30,22 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
 
   const authors = data?.pages.flatMap((page) => page.authors) ?? [];
 
+  // Get author if the book already exists
+  // Maybe the author has been already fetched...
+  let selectedAuthor = authors.find((a) => a.id === props.value);
+  // ...if not, fetch it
+  const { data: selectedAuthorFetch } = useGetAuthor(
+    props.value || undefined,
+    !selectedAuthor && !!props.value
+  );
+  selectedAuthor = selectedAuthor ?? selectedAuthorFetch ?? undefined;
+
+  const options = selectedAuthor ? [selectedAuthor, ...authors.filter((a) => a.id !== selectedAuthor.id)] : authors;
+
   return (
     <Autocomplete<Author>
-      options={authors}
-      value={authors.find((a) => a.id === props.value) ?? null}
+      options={options}
+      value={selectedAuthor}
       onChange={(_, author) => props.onChange?.(author?.id ?? '')}
       sx={{ width: props.width }}
       loading={isLoading}
