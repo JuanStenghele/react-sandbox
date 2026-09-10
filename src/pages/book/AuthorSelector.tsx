@@ -6,7 +6,11 @@ import { useGetInfiniteAuthors } from '../../services/authors';
 
 interface AuthorSelectorProps {
   width?: number;
+  value?: string;
+  onChange?: (authorId: string) => void;
 }
+
+const getOptionLabel = (option: Author) => `${option.name} (${option.id})`;
 
 const AuthorSelector = (props: AuthorSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,6 +33,8 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
   return (
     <Autocomplete<Author>
       options={authors}
+      value={authors.find((a) => a.id === props.value) ?? null}
+      onChange={(_, author) => props.onChange?.(author?.id ?? '')}
       sx={{ width: props.width }}
       loading={isLoading}
       loadingText={(
@@ -36,14 +42,16 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
           <CircularProgress size={20.0} />
         </Box>
       )}
-      getOptionLabel={(option) => `${option.name} (${option.id})`}
+      getOptionLabel={getOptionLabel}
       isOptionEqualToValue={(option, value) => option.id === value.id}
-      onInputChange={(_, value) => {
-        setSearchTerm(value);
+      onInputChange={(_, value, reason) => {
+        if (reason === 'input') {
+          setSearchTerm(value);
+        }
       }}
       renderOption={(props, option: Author) => (
         <Box component='li' {...props} key={option.id}>
-          {`${option.name} (${option.id})`}
+          {getOptionLabel(option)}
         </Box>        
       )}
       slotProps={{
