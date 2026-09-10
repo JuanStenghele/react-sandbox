@@ -7,7 +7,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { useAuth } from 'react-oidc-context';
 import { buildAuthProps, buildAuthUser } from './test/utils';
 import backend from './services/backend';
-import type { GetBooksRawResponse } from './services/books';
+import type { GetBooksRawResponse, RawBook } from './services/books';
 import type { GetAuthorsResponse } from './services/authors';
 import AppRoutes from './routes';
 
@@ -189,6 +189,96 @@ describe('AppRoutes', () => {
 
       render(
         <MemoryRouter initialEntries={[`/authors/${sampleResponse.authors[0].id}`]}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Unauthorized Access')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('book routes', () => {
+    const sampleRawBook: RawBook = {
+      id: '60fd6e8e-9e00-4e84-ad28-8d2fdd3d0ddd',
+      title: 'The Pragmatic Programmer',
+      author_id: 'a6f682de-5fd4-442e-a237-71b30281a2d6',
+      description: 'Your journey to mastery.',
+      isbn: '978-0135957059',
+      publication_date: '2019-09-13',
+      cover_image_url: 'http://localhost:8000/storage/covers/abc.jpg',
+      created_at: '2026-06-25T03:28:59.552152',
+    };
+
+    it('renders new book page for an admin user', async () => {
+      const adminUser = buildAuthUser({ scope: 'openid admin' });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={['/books/new']}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('New Book')).toBeInTheDocument();
+      });
+    });
+
+    it('renders edit book page for an admin user', async () => {
+      const adminUser = buildAuthUser({ scope: 'openid admin' });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      mock.onGet(`/v1/books/${sampleRawBook.id}`).reply(200, sampleRawBook);
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={[`/books/${sampleRawBook.id}`]}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Edit Book')).toBeInTheDocument();
+      });
+    });
+
+    it('redirects a non-admin user to the unauthorized page for the new book route', async () => {
+      const regularUser = buildAuthUser({ scope: 'openid' });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
+      );
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={['/books/new']}>
+          <AppRoutes />
+        </MemoryRouter>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Unauthorized Access')).toBeInTheDocument();
+      });
+    });
+
+    it('redirects a non-admin user to the unauthorized page for the edit book route', async () => {
+      const regularUser = buildAuthUser({ scope: 'openid' });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
+      );
+      const wrapper = buildWrapper();
+
+      render(
+        <MemoryRouter initialEntries={[`/books/${sampleRawBook.id}`]}>
           <AppRoutes />
         </MemoryRouter>,
         { wrapper }

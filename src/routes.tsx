@@ -9,6 +9,7 @@ import AuthorsPage from './pages/authors/Authors';
 import UnauthorizedPage from './pages/Unauthorized';
 import AuthorPage from './pages/author/Author';
 import AdminGate from './pages/auth/AdminGate';
+import BookPage from './pages/book/Book';
 
 const AppRoutes = () => {
   return (
@@ -22,6 +23,8 @@ const AppRoutes = () => {
           <Route element={<AdminGate />}>
             <Route path={ROUTES.newAuthor} element={<AuthorPage />} />
             <Route path={ROUTES.editAuthor} element={<AuthorPage />} />
+            <Route path={ROUTES.newBook} element={<BookPage />} />
+            <Route path={ROUTES.editBook} element={<BookPage />} />
           </Route>
         </Route>
       </Route>
