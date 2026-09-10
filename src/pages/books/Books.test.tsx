@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
@@ -44,9 +45,11 @@ describe('BooksPage', () => {
     });
     return ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>
-        <Provider store={store}>
-          {children}
-        </Provider>
+        <MemoryRouter>
+          <Provider store={store}>
+            {children}
+          </Provider>
+        </MemoryRouter>
       </QueryClientProvider>
     );
   };

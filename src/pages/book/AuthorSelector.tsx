@@ -38,14 +38,14 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
     props.value || undefined,
     !selectedAuthor && !!props.value
   );
-  selectedAuthor = selectedAuthor ?? selectedAuthorFetch ?? undefined;
+  selectedAuthor = selectedAuthor ?? selectedAuthorFetch;
 
   const options = selectedAuthor ? [selectedAuthor, ...authors.filter((a) => a.id !== selectedAuthor.id)] : authors;
 
   return (
     <Autocomplete<Author>
       options={options}
-      value={selectedAuthor}
+      value={selectedAuthor ?? null}
       onChange={(_, author) => props.onChange?.(author?.id ?? '')}
       sx={{ width: props.width }}
       loading={isLoading}
