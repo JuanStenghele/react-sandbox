@@ -5,6 +5,8 @@ export const ROUTES = {
   unauthorized: '/unauthorized',
   newAuthor: '/authors/new',
   editAuthor: '/authors/:id',
+  newBook: '/books/new',
+  editBook: '/books/:id'
 } as const;
 
 export const adminScope = 'admin';
