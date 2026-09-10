@@ -3,6 +3,7 @@ import {
   GridOverlay,
   type GridColDef,
   type GridPaginationModel,
+  type GridRowParams,
 } from '@mui/x-data-grid';
 import { useGetBooks } from '../../../services/books';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
@@ -12,8 +13,11 @@ import BooksTableCoverImage from './CoverImage'
 import { useAtom } from 'jotai';
 import { booksTableState, type BooksTableState } from '../../../state/books';
 import { useDebounce } from 'use-debounce';
+import { ROUTES } from '../../../constants';
+import { generatePath, useNavigate } from 'react-router';
 
 const BooksTable = () => {
+  const navigate = useNavigate();
   const [tableState, setTableState] = useAtom(booksTableState);
   const [debouncedSearchTerm] = useDebounce(tableState.searchTerm, 300);
 
@@ -45,6 +49,10 @@ const BooksTable = () => {
     { field: 'created_at', headerName: 'Created At', type: 'dateTime', width: 148.0 }
   ];
 
+  const onRowClick = (params: GridRowParams) => {
+    navigate(generatePath(ROUTES.editBook, { id: params.row.id }), { state: { book: params.row } });
+  };
+  
   const onPaginationChange = (model: GridPaginationModel) => {
     setTableState((prev: BooksTableState) => ({
       ...prev,
@@ -99,8 +107,10 @@ const BooksTable = () => {
         }
       }}
       checkboxSelection
+      disableRowSelectionOnClick
       disableColumnSorting
       disableColumnFilter
+      onRowClick={onRowClick}
     />
   );
 };

@@ -1,10 +1,13 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
 import backend from '../../../services/backend';
 import type { RawBook, GetBooksRawResponse } from '../../../services/books';
+import { LocationDisplay } from '../../../test/utils';
 import BooksTable from './Table';
 
 describe('BooksTable', () => {
@@ -47,7 +50,10 @@ describe('BooksTable', () => {
     });
     return ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>
-        {children}
+        <MemoryRouter>
+          <LocationDisplay />
+          {children}
+        </MemoryRouter>
       </QueryClientProvider>
     );
   };
@@ -86,6 +92,25 @@ describe('BooksTable', () => {
 
     await waitFor(() => {
       expect(screen.getByText('No books found')).toBeInTheDocument();
+    });
+  });
+
+  describe('row click', () => {
+    it('navigates to the edit book page when a row is clicked', async () => {
+      mock.onGet('/v1/books').reply(200, sampleRawResponse);
+      const wrapper = buildWrapper();
+
+      render(<BooksTable />, { wrapper });
+
+      await waitFor(() => {
+        expect(screen.getByText('The Pragmatic Programmer')).toBeInTheDocument();
+      });
+
+      await userEvent.click(screen.getByText('The Pragmatic Programmer'));
+
+      expect(screen.getByTestId('location')).toHaveTextContent(
+        `/books/${sampleRawBook.id}`
+      );
     });
   });
 });
