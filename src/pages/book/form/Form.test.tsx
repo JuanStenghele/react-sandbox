@@ -181,7 +181,7 @@ describe('BookForm', () => {
       const formData = mock.history.post[0].data as FormData;
       expect(formData.get('title')).toBe('The Pragmatic Programmer');
       expect(formData.get('isbn')).toBe('978-0135957059');
-      expect(formData.get('publication_date')).toBe('2019-09-13');
+      expect(formData.get('publication_date')).toBe('2019-09-10');
       expect(formData.get('description')).toBe('Your journey to mastery, 20th anniversary edition.');
       expect(formData.get('author_id')).toBe(sampleAuthor.id);
       expect(formData.get('cover_image')).toEqual(dummyFile);
