@@ -13,8 +13,13 @@ describe('BookCoverImagePicker', () => {
 
   const buildControlledWrapper = () => {
     const TestComponent = () => {
-      const [value, setValue] = useState<File | null>(null);
-      return <BookCoverImagePicker value={value} onChange={setValue} />;
+      const [value, setValue] = useState<File | undefined>(undefined);
+      return (
+        <BookCoverImagePicker
+          value={value}
+          onChange={(file) => setValue(file ?? undefined)}
+        />
+      );
     };
     return TestComponent;
   };

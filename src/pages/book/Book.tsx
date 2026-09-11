@@ -3,7 +3,7 @@ import { useLocation, useParams } from 'react-router';
 import LoadingPage from '../Loading';
 import type { Book } from '../../types/book';
 import { useGetBook } from '../../services/books';
-import BookForm from './Form';
+import BookForm from './form/Form';
 
 interface BookLocationState {
   book?: Book;

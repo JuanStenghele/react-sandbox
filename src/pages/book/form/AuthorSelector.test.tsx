@@ -5,9 +5,9 @@ import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
-import backend from '../../services/backend';
-import type { Author } from '../../types/author';
-import type { GetAuthorsResponse } from '../../services/authors';
+import backend from '../../../services/backend';
+import type { Author } from '../../../types/author';
+import type { GetAuthorsResponse } from '../../../services/authors';
 import AuthorSelector from './AuthorSelector';
 
 describe('AuthorSelector', () => {

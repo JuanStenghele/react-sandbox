@@ -1,8 +1,8 @@
 import { Autocomplete, Box, CircularProgress, TextField, type AutocompleteRenderInputParams } from '@mui/material';
-import type { Author } from '../../types/author';
+import type { Author } from '../../../types/author';
 import { forwardRef, useState } from 'react';
 import type { HTMLAttributes, UIEvent } from 'react';
-import { useGetAuthor, useGetInfiniteAuthors } from '../../services/authors';
+import { useGetAuthor, useGetInfiniteAuthors } from '../../../services/authors';
 
 interface AuthorSelectorProps {
   width?: number;

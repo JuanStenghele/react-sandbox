@@ -3,14 +3,14 @@ import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router';
-import { ROUTES } from '../../constants';
-import type { Book } from '../../types/book';
+import { ROUTES } from '../../../constants';
+import type { Book } from '../../../types/book';
 import AuthorSelector from './AuthorSelector';
 import BookCoverImagePicker from './CoverImagePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { usePatchBook, usePostBook } from '../../services/books';
+import { usePatchBook, usePostBook } from '../../../services/books';
 
 export interface BookPageProps {
   book?: Book;

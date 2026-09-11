@@ -4,14 +4,14 @@ import BookForm from './Form';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router';
-import { LocationDisplay } from '../../test/utils';
+import { LocationDisplay } from '../../../test/utils';
 import userEvent from '@testing-library/user-event';
 import MockAdapter from 'axios-mock-adapter';
-import backend from '../../services/backend';
-import type { PostBookResponse } from '../../services/books';
-import type { GetAuthorsResponse } from '../../services/authors';
-import type { Book } from '../../types/book';
-import type { Author } from '../../types/author';
+import backend from '../../../services/backend';
+import type { PostBookResponse } from '../../../services/books';
+import type { GetAuthorsResponse } from '../../../services/authors';
+import type { Book } from '../../../types/book';
+import type { Author } from '../../../types/author';
 
 describe('BookForm', () => {
   const mock = new MockAdapter(backend);
@@ -82,7 +82,11 @@ describe('BookForm', () => {
 
     await userEvent.click(dayInput);
     await userEvent.clear(dayInput);
-    await userEvent.type(dayInput, '13');
+    await userEvent.type(dayInput, '10');
+
+    await userEvent.click(monthInput);
+    await userEvent.clear(monthInput);
+    await userEvent.type(monthInput, '9');
 
     await userEvent.click(yearInput);
     await userEvent.clear(yearInput);
