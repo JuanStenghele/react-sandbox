@@ -1,8 +1,8 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import backend from './backend';
 import MockAdapter from 'axios-mock-adapter';
-import type { RawBook, GetBooksRawResponse, PostBookRequest, PostBookResponse, PatchBookRequest, PatchBookResponse } from './books';
-import { getBooks, useGetBooks, postBook, usePostBook, getBook, useGetBook, patchBook, usePatchBook } from './books';
+import type { RawBook, GetBooksRawResponse, PostBookRequest, PostBookResponse, PatchBookRequest, PatchBookResponse, DeleteBooksRequest } from './books';
+import { getBooks, useGetBooks, postBook, usePostBook, getBook, useGetBook, patchBook, usePatchBook, deleteBooks, useDeleteBooks } from './books';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -76,6 +76,8 @@ describe('books service', () => {
     id: sampleRawBook.id,
     data: { title: samplePatchBookResponse.title }
   };
+
+  const sampleDeleteBooksRequest: DeleteBooksRequest = { ids: ['60fd6e8e-9e00-4e84-ad28-8d2fdd3d0ddd', '6d0d5f0b-2f3a-4f9b-9f1e-2d2b3c4d5e6f'] };
 
   const mock = new MockAdapter(backend);
   const mockedUseSnackbar = vi.mocked(useSnackbar);
@@ -151,6 +153,20 @@ describe('books service', () => {
       mock.onPatch(`/v1/books/${sampleRawBook.id}`).reply(500);
 
       await expect(patchBook(samplePatchBookRequest.id, samplePatchBookRequest.data)).rejects.toBeDefined();
+    });
+
+    it('returns a successful response on deleteBooks', async () => {
+      mock.onDelete('/v1/books').reply(200);
+
+      await expect(deleteBooks(sampleDeleteBooksRequest)).resolves.toBeUndefined();
+      expect(mock.history.delete).toHaveLength(1);
+      expect(mock.history.delete[0].params?.toString()).toBe('ids=60fd6e8e-9e00-4e84-ad28-8d2fdd3d0ddd&ids=6d0d5f0b-2f3a-4f9b-9f1e-2d2b3c4d5e6f');
+    });
+
+    it('returns a 5xx response on deleteBooks', async () => {
+      mock.onDelete('/v1/books').reply(500);
+
+      await expect(deleteBooks(sampleDeleteBooksRequest)).rejects.toBeDefined();
     });
   });
 
@@ -331,6 +347,52 @@ describe('books service', () => {
       expect(invalidateQueriesSpy).not.toHaveBeenCalled();
       expect(enqueueSnackbar).toHaveBeenCalledWith(
         expect.stringContaining('Failed to update book'),
+        { variant: 'error' }
+      );
+    });
+
+    it('handles a successful useDeleteBooks mutation', async () => {
+      mock.onDelete('/v1/books').reply(200);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => useDeleteBooks(), { wrapper });
+
+      result.current.mutate(sampleDeleteBooksRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(result.current.isError).toBe(false);
+      });
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['books'] });
+      expect(enqueueSnackbar).toHaveBeenCalledWith('Deleted 2 books successfully', {
+        variant: 'success'
+      });
+    });
+
+    it('handles a failed useDeleteBooks mutation', async () => {
+      mock.onDelete('/v1/books').reply(500);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => useDeleteBooks(), { wrapper });
+
+      result.current.mutate(sampleDeleteBooksRequest);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(false);
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toBeDefined();
+      expect(invalidateQueriesSpy).not.toHaveBeenCalled();
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to delete books'),
         { variant: 'error' }
       );
     });

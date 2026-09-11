@@ -14,9 +14,9 @@ import { booksTableState } from '../../state/books';
 import { buildAuthProps, buildAuthUser, LocationDisplay } from '../../test/utils';
 import BooksPage from './Books';
 
-describe('BooksPage', () => {
-  vi.mock('react-oidc-context');
+vi.mock('react-oidc-context');
 
+describe('BooksPage', () => {
   const mock = new MockAdapter(backend);
   const mockedUseAuth = vi.mocked(useAuth);
 
@@ -104,6 +104,96 @@ describe('BooksPage', () => {
       await userEvent.click(screen.getByRole('button', { name: 'New' }));
 
       expect(screen.getByTestId('location')).toHaveTextContent('/books/new');
+    });
+  });
+
+  describe('delete button', () => {
+    it('is disabled for non admin users', () => {
+      const regularUser = buildAuthUser({ scopes: ['openid'] });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
+      );
+      const store = createStore();
+      const wrapper = buildWrapper(store);
+
+      render(<BooksPage />, { wrapper });
+
+      expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
+    });
+
+    it('is disabled when no rows are selected', () => {
+      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      const store = createStore();
+      const wrapper = buildWrapper(store);
+
+      render(<BooksPage />, { wrapper });
+
+      expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
+    });
+
+    it('shows a loading spinner on the Delete button while deleting', async () => {
+      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      let resolveDeferred!: (value: [number]) => void;
+      const deferredResponse = new Promise<[number]>((resolve) => {
+        resolveDeferred = resolve;
+      });
+      mock.onDelete('/v1/books').reply(() => deferredResponse);
+      const store = createStore();
+      store.set(booksTableState, {
+        searchTerm: '',
+        page: 0,
+        pageSize: 10,
+        selectedRowsIds: new Set([sampleRawBook.id]),
+      });
+      const wrapper = buildWrapper(store);
+
+      render(<BooksPage />, { wrapper });
+
+      const deleteButton = screen.getByRole('button', { name: 'Delete' });
+      expect(deleteButton.querySelector('.MuiCircularProgress-root')).not.toBeInTheDocument();
+
+      await userEvent.click(deleteButton);
+
+      expect(deleteButton.querySelector('.MuiCircularProgress-root')).toBeInTheDocument();
+
+      resolveDeferred([200]);
+
+      await waitFor(() => {
+        expect(deleteButton.querySelector('.MuiCircularProgress-root')).not.toBeInTheDocument();
+      });
+    });
+
+    it('deletes the selected books for admin users', async () => {
+      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      mock.onDelete('/v1/books').reply(200);
+      const store = createStore();
+      store.set(booksTableState, {
+        searchTerm: '',
+        page: 0,
+        pageSize: 10,
+        selectedRowsIds: new Set([sampleRawBook.id]),
+      });
+      const wrapper = buildWrapper(store);
+
+      render(<BooksPage />, { wrapper });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+      await waitFor(() => {
+        expect(mock.history.delete).toHaveLength(1);
+      });
+      expect(mock.history.delete[0].params?.toString()).toBe(
+        `ids=${sampleRawBook.id}`
+      );
     });
   });
 

@@ -4,6 +4,7 @@ import {
   type GridColDef,
   type GridPaginationModel,
   type GridRowParams,
+  type GridRowSelectionModel,
 } from '@mui/x-data-grid';
 import { useGetBooks } from '../../../services/books';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
@@ -51,6 +52,13 @@ const BooksTable = () => {
 
   const onRowClick = (params: GridRowParams) => {
     navigate(generatePath(ROUTES.editBook, { id: params.row.id }), { state: { book: params.row } });
+  };
+
+  const onRowSelected = (newSelectionModel: GridRowSelectionModel) => {
+    setTableState((prev: BooksTableState) => ({
+      ...prev,
+      selectedRowsIds: new Set([...newSelectionModel.ids].map((id) => id.toString()))
+    }));
   };
   
   const onPaginationChange = (model: GridPaginationModel) => {
@@ -108,6 +116,8 @@ const BooksTable = () => {
       }}
       checkboxSelection
       disableRowSelectionOnClick
+      disableRowSelectionExcludeModel
+      onRowSelectionModelChange={onRowSelected}
       disableColumnSorting
       disableColumnFilter
       onRowClick={onRowClick}

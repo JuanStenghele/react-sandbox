@@ -1,9 +1,11 @@
 import { Box, Typography, Button, TextField, InputAdornment } from "@mui/material";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import DeleteIcon from "@mui/icons-material/Delete";
 import BooksTable from "./table/Table";
 import { useNavigate } from "react-router";
 import { adminScope, ROUTES } from "../../constants";
 import { useHasPermission } from "../../services/auth";
+import { useDeleteBooks } from "../../services/books";
 import { useAtom } from "jotai";
 import { booksTableState, type BooksTableState } from "../../state/books";
 import SearchIcon from "@mui/icons-material/Search";
@@ -14,8 +16,16 @@ const BooksPage = () => {
   const navigate = useNavigate();
   const [tableState, setTableState] = useAtom(booksTableState);
 
+  const { mutate, isPending: isDeletePending } = useDeleteBooks();
+
   const onNewButtonClick = () => {
     navigate(ROUTES.newBook);
+  };
+
+  const isDeleteButtonDisabled = !isUserAdmin || tableState.selectedRowsIds.size === 0;
+
+  const onDeleteButtonClick = () => {
+    mutate({ ids: [...tableState.selectedRowsIds] });
   };
 
   const onSearchTermChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +52,20 @@ const BooksPage = () => {
           disableElevation
         >
           New
+        </Button>
+        <Button
+          variant="contained"
+          color="error"
+          size="large"
+          onClick={onDeleteButtonClick}
+          startIcon={<DeleteIcon />}
+          sx={{ width: 124.0 }}
+          disabled={isDeleteButtonDisabled}
+          loadingPosition="start"
+          loading={isDeletePending}
+          disableElevation
+        >
+          Delete
         </Button>
         <TextField
           value={tableState.searchTerm}

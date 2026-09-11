@@ -7,6 +7,9 @@ import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
 import backend from '../../../services/backend';
 import type { RawBook, GetBooksRawResponse } from '../../../services/books';
+import { Provider, createStore } from 'jotai';
+import type { Store } from 'jotai/vanilla/store';
+import { booksTableState } from '../../../state/books';
 import { LocationDisplay } from '../../../test/utils';
 import BooksTable from './Table';
 
@@ -44,7 +47,7 @@ describe('BooksTable', () => {
     mock.reset();
   });
 
-  const buildWrapper = () => {
+  const buildWrapper = (store?: Store) => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -52,7 +55,11 @@ describe('BooksTable', () => {
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
           <LocationDisplay />
-          {children}
+          {store ? (
+            <Provider store={store}>{children}</Provider>
+          ) : (
+            children
+          )}
         </MemoryRouter>
       </QueryClientProvider>
     );
@@ -92,6 +99,115 @@ describe('BooksTable', () => {
 
     await waitFor(() => {
       expect(screen.getByText('No books found')).toBeInTheDocument();
+    });
+  });
+
+  describe('row selection', () => {
+    it('stores the selected row id when a row is included', async () => {
+      mock.onGet('/v1/books').reply(200, sampleRawResponse);
+      const store = createStore();
+      const wrapper = buildWrapper(store);
+
+      render(<BooksTable />, { wrapper });
+
+      await waitFor(() => {
+        expect(screen.getByText('The Pragmatic Programmer')).toBeInTheDocument();
+      });
+
+      const rowCheckbox = screen.getAllByRole('checkbox')[1];
+      await userEvent.click(rowCheckbox);
+
+      expect(store.get(booksTableState).selectedRowsIds).toEqual(
+        new Set([sampleRawBook.id])
+      );
+    });
+
+    it('removes the deselected row id from the shown ids when a row is excluded', async () => {
+      mock.onGet('/v1/books').reply(200, sampleRawResponse);
+      const store = createStore();
+      const wrapper = buildWrapper(store);
+
+      render(<BooksTable />, { wrapper });
+
+      await waitFor(() => {
+        expect(screen.getByText('The Pragmatic Programmer')).toBeInTheDocument();
+      });
+
+      const [selectAllCheckbox, rowCheckbox] = screen.getAllByRole('checkbox');
+
+      await userEvent.click(selectAllCheckbox);
+      expect(store.get(booksTableState).selectedRowsIds).toEqual(
+        new Set([sampleRawBook.id])
+      );
+
+      await userEvent.click(rowCheckbox);
+      expect(store.get(booksTableState).selectedRowsIds).toEqual(new Set());
+    });
+
+    it('selects only the rows on the current page when selecting all', async () => {
+      const pageOneBooks: RawBook[] = Array.from({ length: 10 }, (_, index) => ({
+        id: `book-${index + 1}`,
+        title: `Book ${index + 1}`,
+        author_id: `author-${index + 1}`,
+        description: null,
+        isbn: null,
+        publication_date: null,
+        cover_image_url: null,
+        created_at: '2026-06-25T03:28:59.552152',
+      }));
+      const pageTwoBooks: RawBook[] = [{
+        id: 'book-11',
+        title: 'Book 11',
+        author_id: 'author-11',
+        description: null,
+        isbn: null,
+        publication_date: null,
+        cover_image_url: null,
+        created_at: '2026-06-25T03:28:59.552152',
+      }];
+      const totalBooks = pageOneBooks.length + pageTwoBooks.length;
+
+      mock.onGet('/v1/books').reply((config) => {
+        const page = config.params?.page;
+        return page === 1
+          ? [200, {
+              books: pageOneBooks,
+              total_books: totalBooks,
+              total_pages: 2,
+              current_page: 1,
+              page_size: 10,
+            }]
+          : [200, {
+              books: pageTwoBooks,
+              total_books: totalBooks,
+              total_pages: 2,
+              current_page: 2,
+              page_size: 10,
+            }];
+      });
+
+      const store = createStore();
+      const wrapper = buildWrapper(store);
+
+      render(<BooksTable />, { wrapper });
+
+      await waitFor(() => {
+        expect(screen.getByText('Book 1')).toBeInTheDocument();
+      });
+
+      await userEvent.click(screen.getAllByRole('checkbox')[0]);
+
+      expect(store.get(booksTableState).selectedRowsIds).toEqual(
+        new Set(pageOneBooks.map((book) => book.id))
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Go to next page' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Book 11')).toBeInTheDocument();
+      });
+
+      expect(screen.getAllByRole('checkbox')[1]).not.toBeChecked();
     });
   });
 

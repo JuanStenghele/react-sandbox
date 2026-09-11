@@ -130,6 +130,37 @@ export const useGetBooks = (params: GetBooksRequest) => {
   });
 };
 
+export interface DeleteBooksRequest {
+  ids: string[];
+}
+
+export const deleteBooks = async (data: DeleteBooksRequest): Promise<void> => {
+  const params = new URLSearchParams();
+  data.ids.forEach((id) => params.append('ids', id));
+  await backend.delete('/v1/books', { params });
+};
+
+export const useDeleteBooks = () => {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  return useMutation({
+    mutationFn: (params: DeleteBooksRequest) => deleteBooks(params),
+    onSuccess: (_, variables: DeleteBooksRequest) => {
+      queryClient.invalidateQueries({
+        queryKey: ['books']
+      });
+      enqueueSnackbar(`Deleted ${variables.ids.length} books successfully`, {
+        variant: 'success'
+      });
+    },
+    onError: (error: Error) => {
+      enqueueSnackbar(`Failed to delete books: ${error.name} - ${error.message}`, {
+        variant: 'error'
+      });
+    }
+  });
+};
+
 export interface PatchBookRequest {
   title?: string;
   author_id?: string;
