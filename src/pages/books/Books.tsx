@@ -1,12 +1,22 @@
-import { Box, Typography, TextField, InputAdornment } from "@mui/material";
+import { Box, Typography, Button, TextField, InputAdornment } from "@mui/material";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import BooksTable from "./table/Table";
+import { useNavigate } from "react-router";
+import { adminScope, ROUTES } from "../../constants";
+import { useHasPermission } from "../../services/auth";
 import { useAtom } from "jotai";
 import { booksTableState, type BooksTableState } from "../../state/books";
 import SearchIcon from "@mui/icons-material/Search";
 import type { ChangeEvent } from "react";
 
 const BooksPage = () => {
+  const isUserAdmin = useHasPermission(adminScope);
+  const navigate = useNavigate();
   const [tableState, setTableState] = useAtom(booksTableState);
+
+  const onNewButtonClick = () => {
+    navigate(ROUTES.newBook);
+  };
 
   const onSearchTermChange = (event: ChangeEvent<HTMLInputElement>) => {
     setTableState((prev: BooksTableState) => ({
@@ -22,6 +32,17 @@ const BooksPage = () => {
         Books
       </Typography>
       <Box sx={{ mb: 2.0, display: "flex", gap: 1.0 }}>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={onNewButtonClick}
+          startIcon={<AddRoundedIcon />}
+          sx={{ width: 124.0 }}
+          disabled={!isUserAdmin}
+          disableElevation
+        >
+          New
+        </Button>
         <TextField
           value={tableState.searchTerm}
           placeholder="Search..."

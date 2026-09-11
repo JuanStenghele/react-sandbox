@@ -1,18 +1,24 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
+import { useAuth } from 'react-oidc-context';
 import backend from '../../services/backend';
 import type { RawBook, GetBooksRawResponse } from '../../services/books';
 import { Provider, createStore } from 'jotai';
 import type { Store } from 'jotai/vanilla/store';
 import { booksTableState } from '../../state/books';
+import { buildAuthProps, buildAuthUser, LocationDisplay } from '../../test/utils';
 import BooksPage from './Books';
 
 describe('BooksPage', () => {
+  vi.mock('react-oidc-context');
+
   const mock = new MockAdapter(backend);
+  const mockedUseAuth = vi.mocked(useAuth);
 
   const sampleRawBook: RawBook = {
     id: '60fd6e8e-9e00-4e84-ad28-8d2fdd3d0ddd',
@@ -46,6 +52,7 @@ describe('BooksPage', () => {
     return ({ children }: { children: ReactNode }) => (
       <QueryClientProvider client={queryClient}>
         <MemoryRouter>
+          <LocationDisplay />
           <Provider store={store}>
             {children}
           </Provider>
@@ -55,6 +62,10 @@ describe('BooksPage', () => {
   };
 
   it('displays the title and table with data', async () => {
+    const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+    mockedUseAuth.mockReturnValue(
+      buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+    );
     mock.onGet('/v1/books').reply(200, sampleRawResponse);
     const wrapper = buildWrapper();
 
@@ -65,6 +76,34 @@ describe('BooksPage', () => {
       expect(
         screen.getByText('The Pragmatic Programmer')
       ).toBeInTheDocument();
+    });
+  });
+
+  describe('new button', () => {
+    it('is disabled for non-admin users', () => {
+      const regularUser = buildAuthUser({ scopes: ['openid'] });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
+      );
+      const wrapper = buildWrapper();
+
+      render(<BooksPage />, { wrapper });
+
+      expect(screen.getByRole('button', { name: 'New' })).toBeDisabled();
+    });
+
+    it('redirects to new book page for admin users', async () => {
+      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
+      );
+      const wrapper = buildWrapper();
+
+      render(<BooksPage />, { wrapper });
+
+      await userEvent.click(screen.getByRole('button', { name: 'New' }));
+
+      expect(screen.getByTestId('location')).toHaveTextContent('/books/new');
     });
   });
 
