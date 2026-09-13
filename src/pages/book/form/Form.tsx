@@ -84,104 +84,148 @@ const BookForm = (props: BookPageProps) => {
     <Box
       component='form'
       onSubmit={handleSubmit(onSubmit)}
-      sx={{ display: 'flex', flexDirection: 'column', gap: 2.0, height: '100%' }}
+      sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, height: '100%' }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1 }}>
+      <Box 
+        sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1, minHeight: 0, overflowY: 'auto' }}
+      >
+        <Box 
+          sx={{ display: 'flex', gap: 4.0 }}
+        >
+          <Controller
+            name='coverImage'
+            control={control}
+            render={({ field }) => (
+              <BookCoverImagePicker
+                {...field}
+                width={300.0}
+                height={320.0}
+                imageURL={props.book?.cover_image_url ?? undefined}
+              />
+            )}
+          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1 }}>
+            {
+              isEditMode && (
+                <TextField
+                  label='ID'
+                  sx={{
+                    width: '100%',
+                    maxWidth: 726.0
+                  }}
+                  value={props.book!.id}
+                  disabled
+                />
+              )
+            }
+            <Controller
+              name='title'
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  required
+                  label='Title'
+                  sx={{
+                    width: '100%',
+                    maxWidth: 726.0
+                  }}
+                />
+              )}
+            />
+            <Controller
+              name='isbn'
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label='ISBN'
+                  sx={{
+                    width: '100%',
+                    maxWidth: 726.0
+                  }}
+                />
+              )}
+            />
+            <Controller
+              name='authorId'
+              control={control}
+              render={({ field }) => (
+                <AuthorSelector
+                  {...field}
+                  width={726.0}
+                />
+              )}
+            />
+            {
+              !isEditMode && (
+                <Controller
+                  name='publicationDate'
+                  control={control}
+                  render={({ field }) => (
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <DatePicker
+                        {...field}
+                        disableFuture
+                        label='Publication Date'
+                        minDate={minDate}
+                        sx={{
+                          width: '100%',
+                          maxWidth: 726.0
+                        }}
+                      />
+                    </LocalizationProvider>
+                  )}
+                />
+              )
+            }
+          </Box>
+        </Box>
         {
           isEditMode && (
-            <TextField
-              label='ID'
-              sx={{
-                width: '100%',
-                maxWidth: 726.0
-              }}
-              value={props.book!.id}
-              disabled
+            <Controller
+              name='publicationDate'
+              control={control}
+              render={({ field }) => (
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    {...field}
+                    disableFuture
+                    label='Publication Date'
+                    minDate={minDate}
+                    sx={{
+                      width: '100%',
+                      maxWidth: 726.0
+                    }}
+                  />
+                </LocalizationProvider>
+              )}
             />
           )
         }
-        <Controller
-          name='title'
-          control={control}
-          rules={{ required: true }}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              required
-              label='Title'
-              sx={{
-                width: '100%',
-                maxWidth: 726.0
-              }}
-            />
-          )}
-        />
-        <Controller
-          name='isbn'
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label='ISBN'
-              sx={{
-                width: '100%',
-                maxWidth: 726.0
-              }}
-            />
-          )}
-        />
-        <Controller
-          name='authorId'
-          control={control}
-          render={({ field }) => (
-            <AuthorSelector
-              {...field}
-              width={726.0}
-            />
-          )}
-        />
-        <Controller
-          name='publicationDate'
-          control={control}
-          render={({ field }) => (
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1 }}>
+          <Controller
+            name='description'
+            control={control}
+            render={({ field }) => (
+              <TextField
                 {...field}
-                disableFuture
-                label='Publication Date'
-                minDate={minDate}
+                label='Description'
+                multiline
                 sx={{
                   width: '100%',
-                  maxWidth: 726.0
+                  '& .MuiInputBase-input': {
+                    resize: 'vertical',
+                    overflow: 'auto',
+                    minHeight: '96px',
+                    maxHeight: '256px'
+                  }
                 }}
               />
-            </LocalizationProvider>
-          )}
-        />
-        <Controller
-          name='description'
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label='Description'
-              multiline
-              rows={4}
-              sx={{
-                width: '100%'
-              }}
-            />
-          )}
-        />
-        <Controller
-          name='coverImage'
-          control={control}
-          render={({ field }) => (
-            <BookCoverImagePicker
-              {...field}
-            />
-          )}
-        />
+            )}
+          />
+        </Box>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2.0, justifyContent: 'flex-end' }}>
         <Button
