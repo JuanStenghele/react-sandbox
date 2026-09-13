@@ -60,6 +60,14 @@ describe('AuthorForm', () => {
     expect(screen.queryByLabelText('ID')).not.toBeInTheDocument();
   });
 
+  it('limits the name to 128 characters', () => {
+    const wrapper = buildWrapper();
+
+    render(<AuthorForm />, { wrapper });
+
+    expect(screen.getByRole('textbox')).toHaveAttribute('maxlength', '128');
+  });
+
   it('disables the Save button when the name is empty', () => {
     const wrapper = buildWrapper();
 

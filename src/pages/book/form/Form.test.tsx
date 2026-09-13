@@ -111,6 +111,35 @@ describe('BookForm', () => {
     expect(screen.queryByLabelText('ID')).not.toBeInTheDocument();
   });
 
+  it('limits the title to 128 characters', () => {
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm />, { wrapper });
+
+    expect(screen.getByRole('textbox', { name: 'Title' })).toHaveAttribute('maxlength', '128');
+  });
+
+  it('limits the ISBN to 64 characters', () => {
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm />, { wrapper });
+
+    expect(screen.getByRole('textbox', { name: 'ISBN' })).toHaveAttribute('maxlength', '64');
+  });
+
+  it('limits the description to 500 characters and shows a character counter', async () => {
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm />, { wrapper });
+
+    const description = screen.getByRole('textbox', { name: 'Description' });
+    expect(description).toHaveAttribute('maxlength', '500');
+    expect(screen.getByText('0/500')).toBeInTheDocument();
+
+    await userEvent.type(description, 'Hello');
+    expect(screen.getByText('5/500')).toBeInTheDocument();
+  });
+
   it('disables the Save button when the title is empty', () => {
     const wrapper = buildBookFormWrapper();
 

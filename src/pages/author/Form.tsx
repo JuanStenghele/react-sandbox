@@ -75,6 +75,11 @@ const AuthorForm = (props: AuthorPageProps) => {
               {...field}
               required
               label='Name'
+              slotProps={{
+                htmlInput: {
+                  maxLength: 128
+                }
+              }}
               sx={{
                 width: '100%',
                 maxWidth: 726.0

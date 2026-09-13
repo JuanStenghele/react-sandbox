@@ -75,7 +75,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
           const file = event.target.files?.[0];
           if (!file) return;
           if (file.size > 10 * 1024 * 1024 ) { // Max 10 MB
-            event.target.value = "";
+            event.target.value = '';
             enqueueSnackbar('Image size cannot be greater than 10 MB', {
               variant: 'error'
             });

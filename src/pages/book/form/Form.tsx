@@ -171,6 +171,11 @@ const BookForm = (props: BookPageProps) => {
                   {...field}
                   required
                   label='Title'
+                  slotProps={{
+                    htmlInput: {
+                      maxLength: 128
+                    }
+                  }}
                   sx={{
                     width: '100%',
                     maxWidth: 726.0
@@ -185,6 +190,11 @@ const BookForm = (props: BookPageProps) => {
                 <TextField
                   {...field}
                   label='ISBN'
+                  slotProps={{
+                    htmlInput: {
+                      maxLength: 64
+                    }
+                  }}
                   sx={{
                     width: '100%',
                     maxWidth: 726.0
@@ -220,13 +230,19 @@ const BookForm = (props: BookPageProps) => {
                 {...field}
                 label='Description'
                 multiline
+                helperText={`${field.value?.length ?? 0}/500`}
+                slotProps={{
+                  htmlInput: {
+                    maxLength: 500
+                  }
+                }}
                 sx={{
                   width: '100%',
                   '& .MuiInputBase-input': {
                     resize: 'vertical',
                     overflow: 'auto',
                     minHeight: '96px',
-                    maxHeight: '256px'
+                    maxHeight: '164px'
                   }
                 }}
               />
