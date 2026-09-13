@@ -86,8 +86,9 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
               src={displayedImageURL}
               alt='Cover Image'
               sx={{
+                width: '100%',
                 height: '100%',
-                objectFit: 'cover',
+                objectFit: 'contain',
                 padding: 1.0,
                 zIndex: 1
               }}
