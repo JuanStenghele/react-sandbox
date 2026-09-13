@@ -36,7 +36,6 @@ const LanguageSubmenu = (props: LanguageSubmenu) => {
               key={languageItem.key}
               onClick={() => {
                 setLanguage(languageItem.key);
-                props.onClose();
               }}
             >
               <Box
