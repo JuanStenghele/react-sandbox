@@ -56,7 +56,15 @@ const ProfileButton = () => {
         onClose={onMenuClose}
       >
         <Box sx={{ width: 232.0, maxWidth: '100%' }}>
-          <MenuItem onMouseEnter={onLanguageButtonEnter}>
+          <MenuItem 
+            onMouseEnter={onLanguageButtonEnter}
+            sx={{
+              backgroundColor: languageMenuOpen ? 'action.hover' : undefined,
+              '&:hover': {
+                backgroundColor: 'action.hover',
+              }
+            }}
+          >
             <ListItemIcon>
               <ChevronLeftRoundedIcon sx={{ color: 'text.primary' }} />
             </ListItemIcon>
