@@ -8,11 +8,11 @@ import { useSnackbar } from 'notistack';
 interface BookCoverImagePickerProps {
   width: number;
   height: number;
-  existingImageURL?: string ;
-  value?: File | null;
-  onChange: (coverImage: File | null) => void;
+  existingImageURL: string | null;
   showExternalImage: boolean;
   onShowExternalImageChange: (show: boolean) => void;
+  value?: File | null;
+  onChange: (coverImage: File | null) => void;
 }
 
 const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {

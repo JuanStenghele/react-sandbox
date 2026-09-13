@@ -5,12 +5,10 @@ import type { HTMLAttributes, UIEvent } from 'react';
 import { useGetAuthor, useGetInfiniteAuthors } from '../../../services/authors';
 
 interface AuthorSelectorProps {
-  width?: number;
+  width: number;
   value?: string;
   onChange?: (authorId: string) => void;
 }
-
-const getOptionLabel = (option: Author) => `${option.name} (${option.id})`;
 
 const AuthorSelector = (props: AuthorSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,6 +17,8 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
     search_term: searchTerm, 
     page_size: 10 
   });
+
+  const getOptionLabel = (option: Author) => `${option.name} (${option.id})`;
 
   const handleScroll = (event: UIEvent<HTMLUListElement>) => {
     const listboxNode = event.currentTarget;

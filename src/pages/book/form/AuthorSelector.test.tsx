@@ -47,7 +47,7 @@ describe('AuthorSelector', () => {
     mock.onGet('/v1/authors').reply(200, sampleResponse);
     const wrapper = buildWrapper();
 
-    render(<AuthorSelector />, { wrapper });
+    render(<AuthorSelector width={176.0} />, { wrapper });
 
     await userEvent.click(screen.getByRole('combobox'));
 
@@ -66,7 +66,7 @@ describe('AuthorSelector', () => {
     mock.onGet('/v1/authors').reply(() => deferredResponse);
     const wrapper = buildWrapper();
 
-    render(<AuthorSelector />, { wrapper });
+    render(<AuthorSelector width={176.0} />, { wrapper });
 
     await userEvent.click(screen.getByRole('combobox'));
 
@@ -90,7 +90,7 @@ describe('AuthorSelector', () => {
     mock.onGet(/\/v1\/authors\/[^/]+/).reply(200, missingAuthor);
     const wrapper = buildWrapper();
 
-    render(<AuthorSelector value={missingAuthor.id} />, { wrapper });
+    render(<AuthorSelector width={176.0} value={missingAuthor.id} />, { wrapper });
 
     await waitFor(() => {
       expect(
@@ -127,7 +127,7 @@ describe('AuthorSelector', () => {
     mock.onGet(/\/v1\/authors\/[^/]+/).reply(200, valueAuthor);
     const wrapper = buildWrapper();
 
-    render(<AuthorSelector value={valueAuthor.id} />, { wrapper });
+    render(<AuthorSelector width={176.0} value={valueAuthor.id} />, { wrapper });
 
     await waitFor(() => {
       expect(screen.getByDisplayValue('Author 11 (author-11)')).toBeInTheDocument();
@@ -152,7 +152,7 @@ describe('AuthorSelector', () => {
     mock.onGet('/v1/authors').reply(200, sampleResponse);
     const wrapper = buildWrapper();
 
-    render(<AuthorSelector />, { wrapper });
+    render(<AuthorSelector width={176.0} />, { wrapper });
 
     await userEvent.type(screen.getByRole('combobox'), 'Jane');
 
@@ -190,7 +190,7 @@ describe('AuthorSelector', () => {
 
     const wrapper = buildWrapper();
 
-    render(<AuthorSelector />, { wrapper });
+    render(<AuthorSelector width={176.0} />, { wrapper });
 
     await userEvent.click(screen.getByRole('combobox'));
 

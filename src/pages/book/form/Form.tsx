@@ -142,7 +142,7 @@ const BookForm = (props: BookPageProps) => {
                 {...field}
                 width={300.0}
                 height={320.0}
-                existingImageURL={props.book?.cover_image_url ?? undefined}
+                existingImageURL={props.book?.cover_image_url ?? null}
                 showExternalImage={showExternalImage}
                 onShowExternalImageChange={setShowExternalImage}
               />
