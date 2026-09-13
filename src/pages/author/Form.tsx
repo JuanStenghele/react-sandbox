@@ -22,7 +22,7 @@ const AuthorForm = (props: AuthorPageProps) => {
   const { mutate: patchMutate, isPending: isPatchPending } = usePatchAuthor();
   const isPending = isPostPending || isPatchPending;
 
-  const { control, handleSubmit, formState: { isValid } } = useForm<AuthorFormInput>({
+  const { control, handleSubmit, formState: { isValid, isDirty } } = useForm<AuthorFormInput>({
     defaultValues: { name: props.author?.name ?? '' },
   });
 
@@ -100,7 +100,7 @@ const AuthorForm = (props: AuthorPageProps) => {
           size='large'
           startIcon={<SaveIcon />}
           sx={{ width: 148.0 }}
-          disabled={!isValid}
+          disabled={!isValid || !isDirty}
           loadingPosition='start'
           loading={isPending}
           disableElevation

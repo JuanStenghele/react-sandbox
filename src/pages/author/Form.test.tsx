@@ -134,13 +134,20 @@ describe('AuthorForm', () => {
     expect(screen.getByDisplayValue(sampleAuthor.name)).toBeInTheDocument();
   });
 
-  it('enables the Save button when the name is prefilled in edit mode', async () => {
+  it('disables the Save button until the name is changed in edit mode', async () => {
     const wrapper = buildWrapper();
 
     render(<AuthorForm author={sampleAuthor} />, { wrapper });
 
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(saveButton).toBeDisabled();
+
+    const nameField = screen.getByDisplayValue(sampleAuthor.name);
+    await userEvent.clear(nameField);
+    await userEvent.type(nameField, 'Jane Austen Updated');
+
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+      expect(saveButton).toBeEnabled();
     });
   });
 
@@ -150,12 +157,16 @@ describe('AuthorForm', () => {
 
     render(<AuthorForm author={sampleAuthor} />, { wrapper });
 
+    const nameField = screen.getByDisplayValue(sampleAuthor.name);
+    await userEvent.clear(nameField);
+    await userEvent.type(nameField, 'Jane Austen Updated');
+
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
       expect(mock.history.patch.length).toBe(1);
       expect(mock.history.patch[0].url).toContain(sampleAuthor.id);
-      expect(JSON.parse(mock.history.patch[0].data)).toEqual({ name: sampleAuthor.name });
+      expect(JSON.parse(mock.history.patch[0].data)).toEqual({ name: 'Jane Austen Updated' });
       expect(screen.getByTestId('location')).toHaveTextContent('/authors');
     });
   });
