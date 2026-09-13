@@ -213,8 +213,9 @@ describe('BookForm', () => {
     });
   });
 
-  it('submits via PATCH and redirects to books page in edit mode', async () => {
+  it('submits via PATCH, deletes the existing cover image, and redirects in edit mode', async () => {
     mock.onPatch(`/v1/books/${sampleBook.id}`).reply(200, sampleBook);
+    mock.onDelete(`/v1/books/${sampleBook.id}/cover-images`).reply(204);
     const wrapper = buildBookFormWrapper();
 
     render(<BookForm book={sampleBook} />, { wrapper });
@@ -233,6 +234,45 @@ describe('BookForm', () => {
       expect(formData.get('publication_date')).toBe('2019-09-13');
       expect(formData.get('cover_image')).toBeNull();
 
+      expect(mock.history.delete.length).toBe(1);
+      expect(mock.history.delete[0].url).toBe(`/v1/books/${sampleBook.id}/cover-images`);
+
+      expect(screen.getByTestId('location')).toHaveTextContent('/books');
+    });
+  });
+
+  it('does not delete the cover when a new cover image is selected in edit mode', async () => {
+    mock.onPatch(`/v1/books/${sampleBook.id}`).reply(200, sampleBook);
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm book={sampleBook} />, { wrapper });
+
+    await selectCoverImage();
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(mock.history.patch.length).toBe(1);
+
+      const formData = mock.history.patch[0].data as FormData;
+      expect(formData.get('cover_image')).toEqual(dummyFile);
+
+      expect(mock.history.delete.length).toBe(0);
+      expect(screen.getByTestId('location')).toHaveTextContent('/books');
+    });
+  });
+
+  it('does not delete the cover when the book has no cover image in edit mode', async () => {
+    const bookWithoutCover = { ...sampleBook, cover_image_url: null };
+    mock.onPatch(`/v1/books/${bookWithoutCover.id}`).reply(200, bookWithoutCover);
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm book={bookWithoutCover} />, { wrapper });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => {
+      expect(mock.history.patch.length).toBe(1);
+      expect(mock.history.delete.length).toBe(0);
       expect(screen.getByTestId('location')).toHaveTextContent('/books');
     });
   });

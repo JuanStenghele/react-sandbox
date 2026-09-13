@@ -10,7 +10,7 @@ import BookCoverImagePicker from './CoverImagePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { usePatchBook, usePostBook } from '../../../services/books';
+import { useDeleteBookCover, usePatchBook, usePostBook } from '../../../services/books';
 
 export interface BookPageProps {
   book?: Book;
@@ -28,9 +28,10 @@ interface BookFormInput {
 const BookForm = (props: BookPageProps) => {
   const isEditMode = !!props.book;
   const navigate = useNavigate();
-  const { mutate: postMutate, isPending: isPostPending } = usePostBook();
-  const { mutate: patchMutate, isPending: isPatchPending } = usePatchBook();
-  const isPending = isPostPending || isPatchPending;
+  const { mutateAsync: postMutate, isPending: isPostPending } = usePostBook();
+  const { mutateAsync: patchMutate, isPending: isPatchPending } = usePatchBook();
+  const { mutateAsync: deleteCoverMutate, isPending: isDeleteCoverPending } = useDeleteBookCover();
+  const isPending = isPostPending || isPatchPending || isDeleteCoverPending;
 
   // Allow publication dates from year 1 to the present
   const minDate = new Date(0);
@@ -50,9 +51,9 @@ const BookForm = (props: BookPageProps) => {
     navigate(ROUTES.books);
   };
 
-  const onSubmit: SubmitHandler<BookFormInput> = (data: BookFormInput) => {
+  const onSubmit: SubmitHandler<BookFormInput> = async (data: BookFormInput) => {
     if (isEditMode) {
-      patchMutate({ 
+      await patchMutate({ 
         id: props.book!.id, 
         data: {
           title: data.title,
@@ -61,24 +62,23 @@ const BookForm = (props: BookPageProps) => {
           isbn: data.isbn,
           publication_date: data.publicationDate,
           cover_image: data.coverImage
-        }}, {
-        onSuccess: () => {
-          navigateToBooksPage();
         }
       });
+      // User wants to delete the cover image
+      if (data.coverImage === undefined && props.book?.cover_image_url) {
+        await deleteCoverMutate(props.book!.id);
+      }
+      navigateToBooksPage();
     } else {
-      postMutate({
+      await postMutate({
         title: data.title,
         author_id: data.authorId,
         description: data.description,
         isbn: data.isbn,
         publication_date: data.publicationDate,
         cover_image: data.coverImage
-      }, {
-        onSuccess: () => {
-          navigateToBooksPage();
-        }
       });
+      navigateToBooksPage();
     }
   };
 
