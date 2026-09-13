@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest'
 import backend from './backend';
 import MockAdapter from 'axios-mock-adapter';
 import type { RawBook, GetBooksRawResponse, PostBookRequest, PostBookResponse, PatchBookRequest, PatchBookResponse, DeleteBooksRequest } from './books';
-import { getBooks, useGetBooks, postBook, usePostBook, getBook, useGetBook, patchBook, usePatchBook, deleteBooks, useDeleteBooks } from './books';
+import { getBooks, useGetBooks, postBook, usePostBook, getBook, useGetBook, patchBook, usePatchBook, deleteBooks, useDeleteBooks, deleteBookCover, useDeleteBookCover } from './books';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
@@ -167,6 +167,20 @@ describe('books service', () => {
       mock.onDelete('/v1/books').reply(500);
 
       await expect(deleteBooks(sampleDeleteBooksRequest)).rejects.toBeDefined();
+    });
+
+    it('returns a successful response on deleteBookCover', async () => {
+      mock.onDelete(`/v1/books/${sampleRawBook.id}/cover-images`).reply(204);
+
+      await expect(deleteBookCover(sampleRawBook.id)).resolves.toBeUndefined();
+      expect(mock.history.delete).toHaveLength(1);
+      expect(mock.history.delete[0].url).toBe(`/v1/books/${sampleRawBook.id}/cover-images`);
+    });
+
+    it('returns a 5xx response on deleteBookCover', async () => {
+      mock.onDelete(`/v1/books/${sampleRawBook.id}/cover-images`).reply(500);
+
+      await expect(deleteBookCover(sampleRawBook.id)).rejects.toBeDefined();
     });
   });
 
@@ -393,6 +407,52 @@ describe('books service', () => {
       expect(invalidateQueriesSpy).not.toHaveBeenCalled();
       expect(enqueueSnackbar).toHaveBeenCalledWith(
         expect.stringContaining('Failed to delete books'),
+        { variant: 'error' }
+      );
+    });
+
+    it('handles a successful useDeleteBookCover mutation', async () => {
+      mock.onDelete(`/v1/books/${sampleRawBook.id}/cover-images`).reply(204);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => useDeleteBookCover(), { wrapper });
+
+      result.current.mutate(sampleRawBook.id);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(true);
+        expect(result.current.isError).toBe(false);
+      });
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({ queryKey: ['books'] });
+      expect(enqueueSnackbar).toHaveBeenCalledWith('Book cover deleted successfully', {
+        variant: 'success'
+      });
+    });
+
+    it('handles a failed useDeleteBookCover mutation', async () => {
+      mock.onDelete(`/v1/books/${sampleRawBook.id}/cover-images`).reply(500);
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } }
+      });
+      const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const wrapper = buildWrapper(queryClient);
+
+      const { result } = renderHook(() => useDeleteBookCover(), { wrapper });
+
+      result.current.mutate(sampleRawBook.id);
+
+      await waitFor(() => {
+        expect(result.current.isSuccess).toBe(false);
+        expect(result.current.isError).toBe(true);
+      });
+      expect(result.current.error).toBeDefined();
+      expect(invalidateQueriesSpy).not.toHaveBeenCalled();
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to delete book cover'),
         { variant: 'error' }
       );
     });

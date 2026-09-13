@@ -225,3 +225,28 @@ export const usePatchBook = () => {
     }
   });
 };
+
+export const deleteBookCover = async (id: string): Promise<void> => {
+  await backend.delete(`/v1/books/${id}/cover-images`);
+};
+
+export const useDeleteBookCover = () => {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  return useMutation({
+    mutationFn: (id: string) => deleteBookCover(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['books']
+      });
+      enqueueSnackbar('Book cover deleted successfully', {
+        variant: 'success'
+      });
+    },
+    onError: (error: Error) => {
+      enqueueSnackbar(`Failed to delete book cover: ${error.name} - ${error.message}`, {
+        variant: 'error'
+      });
+    }
+  });
+};
