@@ -1,6 +1,7 @@
-import { Box, Typography } from '@mui/material';
+import { Box, IconButton, Typography } from '@mui/material';
 import ImageSearchRoundedIcon from '@mui/icons-material/ImageSearchRounded';
-import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
+import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
+import RestoreRoundedIcon from '@mui/icons-material/RestoreRounded';
 import { useRef, useState, type ChangeEvent } from 'react';
 
 interface BookCoverImagePickerProps {
@@ -19,7 +20,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
     props.onChange(file);
   };
 
-  const onDeleteCoverImageClicked = (event: React.MouseEvent<HTMLDivElement>) => {
+  const onDeleteCoverImageClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     if (showExternalImage) {
       setShowExternalImage(false);
@@ -37,6 +38,13 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
     return null;
   }
 
+  const onResetCoverImageClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (props.existingImageURL) {
+      setShowExternalImage(true);
+    }
+  };
+
   const displayedImageURL: string | null = getDisplayedImageURL();
 
   return (
@@ -50,11 +58,6 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
         '&:hover': {
           border: '1px solid rgba(0, 0, 0, 0.87)'
         },
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-        gap: 2.0,
         cursor: 'pointer'
       }}
     >
@@ -69,18 +72,19 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
           onCoverImageSelected(file);
         }}
       />
+      <Box 
+        sx={{
+          position: 'relative',
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
       {
         displayedImageURL ? (
-          <Box 
-            sx={{
-              position: 'relative',
-              height: '100%',
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}
-          >
+          <>
             <Box
               component='img'
               src={displayedImageURL}
@@ -93,36 +97,80 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
                 zIndex: 1
               }}
             />
-            <Box
+            <IconButton
+              size='small'
               sx={{
                 position: 'absolute',
-                top: 6.0,
-                right: 6.0,
-                zIndex: 2
+                top: 10.0,
+                right: 10.0,
+                zIndex: 2,
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                }
               }}
               onClick={onDeleteCoverImageClicked}
             >
-              <CancelRoundedIcon 
+              <ClearRoundedIcon
                 data-testid='delete-cover-image'
-                sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+                sx={{ 
+                  color: 'white', 
+                  fontSize: 16.0 
+                }}
               />
-            </Box>
-          </Box>
+            </IconButton>
+          </>
         ) : (
           <>
-            <ImageSearchRoundedIcon
-              sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
-              fontSize='large'
-            />
-            <Typography 
-              variant='body1'
-              sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+                gap: 2.0
+              }}
             >
-              Select a cover image...
-            </Typography>
+              <ImageSearchRoundedIcon
+                sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+                fontSize='large'
+              />
+              <Typography 
+                variant='body1'
+                sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+              >
+                Select a cover image...
+              </Typography>
+            </Box>
+            {
+              props.existingImageURL && 
+                <IconButton
+                  size='small'
+                  sx={{
+                    position: 'absolute',
+                    top: 10.0,
+                    right: 10.0,
+                    zIndex: 2,
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                    }
+                  }}
+                  onClick={onResetCoverImageClicked}
+                >
+                  <RestoreRoundedIcon
+                    data-testid='reset-cover-image'
+                    sx={{ 
+                      color: 'white', 
+                      fontSize: 16.0 
+                    }}
+                  />
+                </IconButton>
+            }
           </>
         )
       }
+      </Box>
     </Box>
   );
 };

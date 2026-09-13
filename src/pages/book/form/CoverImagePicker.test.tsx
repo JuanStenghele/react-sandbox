@@ -77,4 +77,21 @@ describe('BookCoverImagePicker', () => {
     expect(screen.queryByAltText('Cover Image')).toBeNull();
     expect(screen.queryByText('Select a cover image...')).toBeVisible();
   });
+
+  it('restores the existing image when the user resets it', async () => {
+    render(<BookCoverImagePicker onChange={onChangeMock} width={100.0} height={100.0} existingImageURL="https://example.com/cover.jpg" />);
+
+    expect(screen.getByAltText('Cover Image')).toBeVisible();
+    expect(screen.queryByTestId('reset-cover-image')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId('delete-cover-image'));
+
+    expect(screen.queryByAltText('Cover Image')).toBeNull();
+    expect(screen.getByTestId('reset-cover-image')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId('reset-cover-image'));
+
+    expect(screen.getByAltText('Cover Image')).toBeVisible();
+    expect(screen.queryByTestId('reset-cover-image')).not.toBeInTheDocument();
+  });
 });
