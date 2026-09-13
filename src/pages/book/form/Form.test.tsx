@@ -203,6 +203,16 @@ describe('BookForm', () => {
     expect(screen.getByDisplayValue(sampleBook.description!)).toBeInTheDocument();
   });
 
+  it('displays the prefilled publication date in dd/MM/yyyy format in edit mode', () => {
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm book={sampleBook} />, { wrapper });
+
+    expect(screen.getByRole('spinbutton', { name: 'Day' })).toHaveTextContent('13');
+    expect(screen.getByRole('spinbutton', { name: 'Month' })).toHaveTextContent('09');
+    expect(screen.getByRole('spinbutton', { name: 'Year' })).toHaveTextContent('2019');
+  });
+
   it('disables the Save button when no changes are made in edit mode', () => {
     const wrapper = buildBookFormWrapper();
 

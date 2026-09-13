@@ -100,6 +100,28 @@ const BookForm = (props: BookPageProps) => {
     }
   };
 
+  const publicationDatePickerComponent = () => {
+    return <Controller
+      name='publicationDate'
+      control={control}
+      render={({ field }) => (
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DatePicker
+            {...field}
+            disableFuture
+            label='Publication Date'
+            minDate={minDate}
+            format='dd/MM/yyyy'
+            sx={{
+              width: '100%',
+              maxWidth: 726.0
+            }}
+          />
+        </LocalizationProvider>
+      )}
+    />
+  };
+
   return (
     <Box
       component='form'
@@ -182,50 +204,12 @@ const BookForm = (props: BookPageProps) => {
               )}
             />
             {
-              !isEditMode && (
-                <Controller
-                  name='publicationDate'
-                  control={control}
-                  render={({ field }) => (
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                      <DatePicker
-                        {...field}
-                        disableFuture
-                        label='Publication Date'
-                        minDate={minDate}
-                        sx={{
-                          width: '100%',
-                          maxWidth: 726.0
-                        }}
-                      />
-                    </LocalizationProvider>
-                  )}
-                />
-              )
+              !isEditMode && publicationDatePickerComponent()
             }
           </Box>
         </Box>
         {
-          isEditMode && (
-            <Controller
-              name='publicationDate'
-              control={control}
-              render={({ field }) => (
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <DatePicker
-                    {...field}
-                    disableFuture
-                    label='Publication Date'
-                    minDate={minDate}
-                    sx={{
-                      width: '100%',
-                      maxWidth: 726.0
-                    }}
-                  />
-                </LocalizationProvider>
-              )}
-            />
-          )
+          isEditMode && publicationDatePickerComponent()
         }
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1 }}>
           <Controller
