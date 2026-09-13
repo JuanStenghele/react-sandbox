@@ -15,19 +15,19 @@ const HomeAppBar = () => {
   };
 
   return (
-    <AppBar position="static" sx={{ boxShadow: 'none' }}>
+    <AppBar position='static' sx={{ boxShadow: 'none' }}>
       <Toolbar>
         <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          sx={{ marginRight: 2 }}
+          size='large'
+          edge='start'
+          color='inherit'
+          aria-label='menu'
+          sx={{ marginRight: 2.0 }}
           onClick={onMenuButtonClick}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
           React Sandbox
         </Typography>
         <ProfileButton />

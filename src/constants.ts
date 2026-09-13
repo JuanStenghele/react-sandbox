@@ -1,3 +1,6 @@
+import type { Language } from './types/home';
+import { AR, US } from 'country-flag-icons/react/3x2';
+
 export const ROUTES = {
   login: '/login',
   books: '/books',
@@ -10,3 +13,15 @@ export const ROUTES = {
 } as const;
 
 export const adminScope = 'admin';
+
+export const english: Language = {
+  key: 'en',
+  label: 'English',
+  flag: US
+};
+export const spanish: Language = {
+  key: 'es',
+  label: 'Español',
+  flag: AR
+};
+export const languages: Language[] = [english, spanish];

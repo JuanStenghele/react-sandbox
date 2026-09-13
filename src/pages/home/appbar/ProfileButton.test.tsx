@@ -34,6 +34,19 @@ describe('ProfileButton', () => {
     expect(screen.getByText('Sign Out')).toBeInTheDocument();
   });
 
+  it('opens the language submenu when hovering the Language item', () => {
+    mockedUseAuth.mockReturnValue(
+      buildAuthProps({ isAuthenticated: true })
+    );
+    render(<ProfileButton />);
+
+    fireEvent.click(screen.getByLabelText('profile'));
+    fireEvent.mouseEnter(screen.getByText('Language'));
+
+    expect(screen.getByText('English')).toBeInTheDocument();
+    expect(screen.getByText('Español')).toBeInTheDocument();
+  });
+
   it('calls removeUser when clicking Sign Out', () => {
     const removeUser = vi.fn();
     mockedUseAuth.mockReturnValue(
