@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, afterEach, vi } from 'vitest';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -27,6 +27,8 @@ describe('AuthorSelector', () => {
   };
 
   afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
     mock.reset();
   });
 
@@ -148,18 +150,29 @@ describe('AuthorSelector', () => {
     expect(screen.getAllByText('Author 11 (author-11)')).toHaveLength(1);
   });
 
-  it('sends the search term to the backend when the input changes', async () => {
+  it('sends the search term to the backend after the debounce delay', async () => {
+    vi.useFakeTimers();
     mock.onGet('/v1/authors').reply(200, sampleResponse);
     const wrapper = buildWrapper();
 
     render(<AuthorSelector width={176.0} />, { wrapper });
 
-    await userEvent.type(screen.getByRole('combobox'), 'Jane');
-
-    await waitFor(() => {
-      const lastRequest = mock.history.get[mock.history.get.length - 1];
-      expect(lastRequest.params?.search_term).toBe('Jane');
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
     });
+
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'Jane' },
+    });
+
+    expect(mock.history.get[mock.history.get.length - 1].params?.search_term).toBe('');
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300);
+    });
+
+    const lastRequest = mock.history.get[mock.history.get.length - 1];
+    expect(lastRequest.params?.search_term).toBe('Jane');
   });
 
   it('fetches the next page and shows a loading indicator when scrolled to the bottom', async () => {

@@ -3,6 +3,7 @@ import type { Author } from '../../../types/author';
 import { forwardRef, useState } from 'react';
 import type { HTMLAttributes, UIEvent } from 'react';
 import { useGetAuthor, useGetInfiniteAuthors } from '../../../services/authors';
+import { useDebounce } from 'use-debounce';
 
 interface AuthorSelectorProps {
   width: number;
@@ -12,9 +13,10 @@ interface AuthorSelectorProps {
 
 const AuthorSelector = (props: AuthorSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useGetInfiniteAuthors({ 
-    search_term: searchTerm, 
+    search_term: debouncedSearchTerm, 
     page_size: 10 
   });
 
