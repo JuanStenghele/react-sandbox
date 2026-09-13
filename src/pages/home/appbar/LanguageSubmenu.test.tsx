@@ -38,7 +38,7 @@ describe('LanguageSubmenu', () => {
     expect(within(spanishItem).getByTestId('CheckRoundedIcon')).toBeInTheDocument();
   });
 
-  it('selects a language and closes when an option is clicked', () => {
+  it('selects a language when an option is clicked', () => {
     const onClose = vi.fn();
     render(
       <LanguageSubmenu
@@ -51,6 +51,6 @@ describe('LanguageSubmenu', () => {
     fireEvent.click(screen.getByText('Español'));
 
     expect(store.get(languageAtom)).toBe('es');
-    expect(onClose).toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
   });
 });
