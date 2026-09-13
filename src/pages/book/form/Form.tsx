@@ -87,7 +87,7 @@ const BookForm = (props: BookPageProps) => {
       sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, height: '100%' }}
     >
       <Box 
-        sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1, minHeight: 0, overflowY: 'auto' }}
+        sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1, minHeight: 0, overflowY: 'auto', paddingTop: 2.0, marginTop: -2.0 }}
       >
         <Box 
           sx={{ display: 'flex', gap: 4.0 }}
