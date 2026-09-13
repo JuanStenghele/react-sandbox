@@ -167,6 +167,7 @@ export interface PatchBookRequest {
   description?: string;
   isbn?: string;
   publication_date?: Date;
+  cover_image?: File;
 }
 
 export interface PatchBookResponse {
@@ -181,7 +182,26 @@ export interface PatchBookResponse {
 }
 
 export const patchBook = async (id: string, data: PatchBookRequest): Promise<PatchBookResponse> => {
-  const response = await backend.patch<PatchBookResponse>(`/v1/books/${id}`, { ...data });
+  const formData = new FormData();
+  if (data.title !== undefined) {
+    formData.append('title', data.title);
+  }
+  if (data.author_id !== undefined) {
+    formData.append('author_id', data.author_id);
+  }
+  if (data.description !== undefined) {
+    formData.append('description', data.description);
+  }
+  if (data.isbn !== undefined) {
+    formData.append('isbn', data.isbn);
+  }
+  if (data.publication_date !== undefined) {
+    formData.append('publication_date', data.publication_date.toISOString().split("T")[0]);
+  }
+  if (data.cover_image !== undefined) {
+    formData.append('cover_image', data.cover_image);
+  }
+  const response = await backend.patch<PatchBookResponse>(`/v1/books/${id}`, formData);
   return response.data;
 };
 
