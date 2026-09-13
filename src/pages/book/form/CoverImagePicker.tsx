@@ -4,19 +4,19 @@ import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import { useRef, useState, type ChangeEvent } from 'react';
 
 interface BookCoverImagePickerProps {
-  width?: number;
-  height?: number;
-  imageURL?: string;
+  width: number;
+  height: number;
+  existingImageURL?: string ;
   value?: File;
   onChange: (coverImage: File | null) => void;
 }
 
 const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [showExternalImage, setShowExternalImage] = useState<boolean>(props.imageURL !== undefined);
+  const [showExternalImage, setShowExternalImage] = useState<boolean>(props.existingImageURL !== undefined);
 
   const onCoverImageSelected = (file: File) => {
-    props.onChange?.(file);
+    props.onChange(file);
   };
 
   const onDeleteCoverImageClicked = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -31,8 +31,8 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const getDisplayedImageURL = () => {
     if (props.value) {
       return URL.createObjectURL(props.value);
-    } else if (props.imageURL) {
-      return props.imageURL;
+    } else if (showExternalImage && props.existingImageURL) {
+      return props.existingImageURL;
     }
     return null;
   }
@@ -43,8 +43,8 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
     <Box
       onClick={() => inputRef.current?.click()}
       sx={{
-        width: props.width || 300.0,
-        height: props.height || 400.0,
+        width: props.width,
+        height: props.height,
         border: '1px solid rgba(0, 0, 0, 0.23)',
         borderRadius: 1.0,
         '&:hover': {

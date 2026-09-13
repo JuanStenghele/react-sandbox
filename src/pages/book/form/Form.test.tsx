@@ -135,11 +135,13 @@ describe('BookForm', () => {
       resolveDeferred = resolve;
     });
     mock.onPost('/v1/books').reply(() => deferredResponse);
+    mock.onGet('/v1/authors').reply(200, sampleAuthorsResponse);
     const wrapper = buildBookFormWrapper();
 
     render(<BookForm />, { wrapper });
 
     await userEvent.type(screen.getByRole('textbox', { name: 'Title' }), 'The Pragmatic Programmer');
+    await selectAuthor();
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(saveButton.querySelector('.MuiCircularProgress-root')).not.toBeInTheDocument();
@@ -222,13 +224,15 @@ describe('BookForm', () => {
     await waitFor(() => {
       expect(mock.history.patch.length).toBe(1);
       expect(mock.history.patch[0].url).toContain(sampleBook.id);
-      expect(JSON.parse(mock.history.patch[0].data)).toEqual({
-        title: sampleBook.title,
-        author_id: sampleBook.author_id,
-        description: sampleBook.description,
-        isbn: sampleBook.isbn,
-        publication_date: sampleBook.publication_date!.toISOString()
-      });
+
+      const formData = mock.history.patch[0].data as FormData;
+      expect(formData.get('title')).toBe(sampleBook.title);
+      expect(formData.get('author_id')).toBe(sampleBook.author_id);
+      expect(formData.get('description')).toBe(sampleBook.description);
+      expect(formData.get('isbn')).toBe(sampleBook.isbn);
+      expect(formData.get('publication_date')).toBe('2019-09-13');
+      expect(formData.get('cover_image')).toBeNull();
+
       expect(screen.getByTestId('location')).toHaveTextContent('/books');
     });
   });

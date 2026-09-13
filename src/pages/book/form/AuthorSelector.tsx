@@ -76,7 +76,7 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
       renderInput={(params: AutocompleteRenderInputParams) => (
         <TextField
           {...params}
-          label='Author'
+          label='Author *'
         />
       )}
     />

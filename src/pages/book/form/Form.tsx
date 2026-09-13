@@ -32,16 +32,17 @@ const BookForm = (props: BookPageProps) => {
   const { mutate: patchMutate, isPending: isPatchPending } = usePatchBook();
   const isPending = isPostPending || isPatchPending;
 
+  // Allow publication dates from year 1 to the present
   const minDate = new Date(0);
   minDate.setFullYear(1, 0, 1);
 
   const { control, handleSubmit, formState: { isValid } } = useForm<BookFormInput>({
     defaultValues: {
-      title: props.book?.title ?? '',
-      description: props.book?.description ?? '',
-      isbn: props.book?.isbn ?? '',
-      publicationDate: props.book?.publication_date ?? new Date(),
-      authorId: props.book?.author_id ?? ''
+      title: props.book?.title,
+      description: props.book?.description ?? undefined,
+      isbn: props.book?.isbn ?? undefined,
+      publicationDate: props.book?.publication_date ?? undefined,
+      authorId: props.book?.author_id
     }
   });
 
@@ -58,7 +59,8 @@ const BookForm = (props: BookPageProps) => {
           author_id: data.authorId,
           description: data.description,
           isbn: data.isbn,
-          publication_date: data.publicationDate       
+          publication_date: data.publicationDate,
+          cover_image: data.coverImage
         }}, {
         onSuccess: () => {
           navigateToBooksPage();
@@ -100,7 +102,7 @@ const BookForm = (props: BookPageProps) => {
                 {...field}
                 width={300.0}
                 height={320.0}
-                imageURL={props.book?.cover_image_url ?? undefined}
+                existingImageURL={props.book?.cover_image_url ?? undefined}
               />
             )}
           />
@@ -151,6 +153,7 @@ const BookForm = (props: BookPageProps) => {
             <Controller
               name='authorId'
               control={control}
+              rules={{ required: true }}
               render={({ field }) => (
                 <AuthorSelector
                   {...field}

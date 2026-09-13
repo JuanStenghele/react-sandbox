@@ -16,6 +16,8 @@ describe('BookCoverImagePicker', () => {
       const [value, setValue] = useState<File | undefined>(undefined);
       return (
         <BookCoverImagePicker
+          width={100.0}
+          height={100.0}
           value={value}
           onChange={(file) => setValue(file ?? undefined)}
         />
@@ -25,7 +27,7 @@ describe('BookCoverImagePicker', () => {
   };
 
   it('renders an explanatory text when no existing image is provided', () => {
-    render(<BookCoverImagePicker onChange={onChangeMock} />);
+    render(<BookCoverImagePicker onChange={onChangeMock} width={100.0} height={100.0} />);
 
     const input = screen.getByLabelText('Cover image input');
     const image = screen.queryByAltText('Cover Image');
@@ -37,7 +39,7 @@ describe('BookCoverImagePicker', () => {
   });
 
   it('renders an image when an existing image is provided', () => {
-    render(<BookCoverImagePicker onChange={onChangeMock} imageURL="https://example.com/cover.jpg" />);
+    render(<BookCoverImagePicker onChange={onChangeMock} width={100.0} height={100.0} existingImageURL="https://example.com/cover.jpg" />);
 
     const image = screen.queryByAltText('Cover Image');
     const explanatoryText = screen.queryByText('Select a cover image...');
