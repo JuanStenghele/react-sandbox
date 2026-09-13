@@ -1,3 +1,76 @@
 {
-  "welcome": "Welcome"
+  "app": {
+    "title": "React Sandbox",
+    "byline": "by Juan Stenghele"
+  },
+  "common": {
+    "signIn": "SIGN IN",
+    "new": "New",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search...",
+    "id": "ID",
+    "name": "Name",
+    "title": "Title",
+    "isbn": "ISBN",
+    "description": "Description",
+    "publicationDate": "Publication Date",
+    "language": "Language",
+    "signOut": "Sign Out"
+  },
+  "drawer": {
+    "authors": "Authors",
+    "books": "Books"
+  },
+  "authors": {
+    "title": "Authors",
+    "noAuthorsFound": "No authors found",
+    "errorLoading": "Error loading authors",
+    "created": "Author {{name}} created successfully",
+    "createFailed": "Failed to create author: {{message}}",
+    "updated": "Author {{name}} updated successfully",
+    "updateFailed": "Failed to update author: {{message}}",
+    "deleted": "Deleted {{count}} authors successfully",
+    "deleteFailed": "Failed to delete authors: {{message}}"
+  },
+  "books": {
+    "title": "Books",
+    "noBooksFound": "No books found",
+    "errorLoading": "Error loading books",
+    "created": "Book {{title}} created successfully",
+    "createFailed": "Failed to create book: {{message}}",
+    "updated": "Book {{title}} updated successfully",
+    "updateFailed": "Failed to update book: {{message}}",
+    "deleted": "Deleted {{count}} books successfully",
+    "deleteFailed": "Failed to delete books: {{message}}",
+    "coverDeleted": "Book cover deleted successfully",
+    "coverDeleteFailed": "Failed to delete book cover: {{message}}",
+    "column": {
+      "cover": "Cover",
+      "authorId": "Author ID",
+      "createdAt": "Created At"
+    }
+  },
+  "authorForm": {
+    "newTitle": "New Author",
+    "editTitle": "Edit Author"
+  },
+  "bookForm": {
+    "newTitle": "New Book",
+    "editTitle": "Edit Book",
+    "authorLabel": "Author *",
+    "coverImage": {
+      "select": "Select a cover image...",
+      "alt": "Cover Image",
+      "inputAlt": "Cover image input",
+      "coverOf": "cover of {{title}}",
+      "tooLarge": "Image size cannot be greater than 10 MB"
+    }
+  },
+  "errors": {
+    "pageNotFound": "Page Not Found",
+    "unauthorizedAccess": "Unauthorized Access",
+    "authenticationError": "Authentication error: {{message}}"
+  }
 }

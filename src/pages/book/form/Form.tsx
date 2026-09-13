@@ -12,6 +12,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useDeleteBookCover, usePatchBook, usePostBook } from '../../../services/books';
+import { useTranslation } from 'react-i18next';
 
 export interface BookPageProps {
   book?: Book;
@@ -29,6 +30,7 @@ interface BookFormInput {
 const BookForm = (props: BookPageProps) => {
   const isEditMode = !!props.book;
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [showExternalImage, setShowExternalImage] = useState(props.book?.cover_image_url != null);
   const { mutateAsync: postMutate, isPending: isPostPending } = usePostBook();
   const { mutateAsync: patchMutate, isPending: isPatchPending } = usePatchBook();
@@ -109,7 +111,7 @@ const BookForm = (props: BookPageProps) => {
           <DatePicker
             {...field}
             disableFuture
-            label='Publication Date'
+            label={t('common.publicationDate')}
             minDate={minDate}
             format='dd/MM/yyyy'
             sx={{
@@ -152,7 +154,7 @@ const BookForm = (props: BookPageProps) => {
             {
               isEditMode && (
                 <TextField
-                  label='ID'
+                  label={t('common.id')}
                   sx={{
                     width: '100%',
                     maxWidth: 726.0
@@ -170,7 +172,7 @@ const BookForm = (props: BookPageProps) => {
                 <TextField
                   {...field}
                   required
-                  label='Title'
+                  label={t('common.title')}
                   slotProps={{
                     htmlInput: {
                       maxLength: 128
@@ -189,7 +191,7 @@ const BookForm = (props: BookPageProps) => {
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label='ISBN'
+                  label={t('common.isbn')}
                   slotProps={{
                     htmlInput: {
                       maxLength: 64
@@ -228,7 +230,7 @@ const BookForm = (props: BookPageProps) => {
             render={({ field }) => (
               <TextField
                 {...field}
-                label='Description'
+                label={t('common.description')}
                 multiline
                 helperText={`${field.value?.length ?? 0}/500`}
                 slotProps={{
@@ -259,7 +261,7 @@ const BookForm = (props: BookPageProps) => {
           onClick={navigateToBooksPage}
           disabled={isPending}
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           type='submit'
@@ -272,7 +274,7 @@ const BookForm = (props: BookPageProps) => {
           loading={isPending}
           disableElevation
         >
-          Save
+          {t('common.save')}
         </Button>
       </Box>
     </Box>

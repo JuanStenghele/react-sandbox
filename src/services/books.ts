@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import backend from './backend';
 import type { Book } from '../types/book';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 
 export interface PostBookRequest {
   title: string;
@@ -44,18 +45,19 @@ export const postBook = async (data: PostBookRequest): Promise<PostBookResponse>
 export const usePostBook = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (params: PostBookRequest) => postBook(params),
     onSuccess: (_, variables: PostBookRequest) => {
       queryClient.invalidateQueries({
         queryKey: ['books']
       });
-      enqueueSnackbar(`Book ${variables.title} created successfully`, {
+      enqueueSnackbar(t('books.created', { title: variables.title }), {
         variant: 'success'
       });
     },
     onError: (error: Error) => {
-      enqueueSnackbar(`Failed to create book: ${error.name} - ${error.message}`, {
+      enqueueSnackbar(t('books.createFailed', { message: `${error.name} - ${error.message}` }), {
         variant: 'error'
       });
     }
@@ -143,18 +145,19 @@ export const deleteBooks = async (data: DeleteBooksRequest): Promise<void> => {
 export const useDeleteBooks = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (params: DeleteBooksRequest) => deleteBooks(params),
     onSuccess: (_, variables: DeleteBooksRequest) => {
       queryClient.invalidateQueries({
         queryKey: ['books']
       });
-      enqueueSnackbar(`Deleted ${variables.ids.length} books successfully`, {
+      enqueueSnackbar(t('books.deleted', { count: variables.ids.length }), {
         variant: 'success'
       });
     },
     onError: (error: Error) => {
-      enqueueSnackbar(`Failed to delete books: ${error.name} - ${error.message}`, {
+      enqueueSnackbar(t('books.deleteFailed', { message: `${error.name} - ${error.message}` }), {
         variant: 'error'
       });
     }
@@ -208,18 +211,19 @@ export const patchBook = async (id: string, data: PatchBookRequest): Promise<Pat
 export const usePatchBook = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (params: { id: string; data: PatchBookRequest }) => patchBook(params.id, params.data),
     onSuccess: (data: PatchBookResponse) => {
       queryClient.invalidateQueries({
         queryKey: ['books']
       });
-      enqueueSnackbar(`Book ${data.title} updated successfully`, {
+      enqueueSnackbar(t('books.updated', { title: data.title }), {
         variant: 'success'
       });
     },
     onError: (error: Error) => {
-      enqueueSnackbar(`Failed to update book: ${error.name} - ${error.message}`, {
+      enqueueSnackbar(t('books.updateFailed', { message: `${error.name} - ${error.message}` }), {
         variant: 'error'
       });
     }
@@ -233,18 +237,19 @@ export const deleteBookCover = async (id: string): Promise<void> => {
 export const useDeleteBookCover = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (id: string) => deleteBookCover(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ['books']
       });
-      enqueueSnackbar('Book cover deleted successfully', {
+      enqueueSnackbar(t('books.coverDeleted'), {
         variant: 'success'
       });
     },
     onError: (error: Error) => {
-      enqueueSnackbar(`Failed to delete book cover: ${error.name} - ${error.message}`, {
+      enqueueSnackbar(t('books.coverDeleteFailed', { message: `${error.name} - ${error.message}` }), {
         variant: 'error'
       });
     }

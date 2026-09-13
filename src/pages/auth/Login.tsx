@@ -4,9 +4,11 @@ import { Box } from '@mui/system';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useAuth } from 'react-oidc-context';
+import { useTranslation } from 'react-i18next';
 
 const LoginPage = () => {
   const auth = useAuth();
+  const { t } = useTranslation();
 
   if (auth.isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -33,14 +35,14 @@ const LoginPage = () => {
       }}>
         <Box sx={{ marginBottom: 6.0 }}>
           <Typography variant='h3' align='center'>
-            React Sandbox
+            {t('app.title')}
           </Typography>
           <Typography variant='h5' align='center' sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-            by Juan Stenghele
+            {t('app.byline')}
           </Typography>
         </Box>
         <Button variant='contained' aria-label='sign-in-button' onClick={onSignInButtonClick} sx={{ alignSelf: 'center' }}>
-          SIGN IN
+          {t('common.signIn')}
         </Button>
       </Paper>
     </Box>

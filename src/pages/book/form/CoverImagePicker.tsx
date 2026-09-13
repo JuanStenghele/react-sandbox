@@ -4,6 +4,7 @@ import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import RestoreRoundedIcon from '@mui/icons-material/RestoreRounded';
 import { useRef, type ChangeEvent } from 'react';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 
 interface BookCoverImagePickerProps {
   width: number;
@@ -18,6 +19,7 @@ interface BookCoverImagePickerProps {
 const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
 
   const onCoverImageSelected = (file: File) => {
     props.onChange(file);
@@ -66,7 +68,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
       }}
     >
       <input
-        aria-label='Cover image input'
+        aria-label={t('bookForm.coverImage.inputAlt')}
         ref={inputRef}
         type='file'
         accept='image/jpeg,image/png,image/webp'
@@ -76,7 +78,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
           if (!file) return;
           if (file.size > 10 * 1024 * 1024 ) { // Max 10 MB
             event.target.value = '';
-            enqueueSnackbar('Image size cannot be greater than 10 MB', {
+            enqueueSnackbar(t('bookForm.coverImage.tooLarge'), {
               variant: 'error'
             });
             return;
@@ -100,7 +102,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
             <Box
               component='img'
               src={displayedImageURL}
-              alt='Cover Image'
+              alt={t('bookForm.coverImage.alt')}
               sx={{
                 width: '100%',
                 height: '100%',
@@ -151,7 +153,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
                 variant='body1'
                 sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
               >
-                Select a cover image...
+                {t('bookForm.coverImage.select')}
               </Typography>
             </Box>
             {

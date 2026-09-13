@@ -15,11 +15,13 @@ import { authorsTableState, type AuthorsTableState } from '../../../state/author
 import { generatePath, useNavigate } from 'react-router';
 import { ROUTES } from '../../../constants';
 import { useDebounce } from 'use-debounce';
+import { useTranslation } from 'react-i18next';
 
 const AuthorsTable = () => {
   const navigate = useNavigate();
   const [tableState, setTableState] = useAtom(authorsTableState);
   const [debouncedSearchTerm] = useDebounce(tableState.searchTerm, 300);
+  const { t } = useTranslation();
 
   const { data, isFetching, isError } = useGetAuthors({
     search_term: debouncedSearchTerm,
@@ -28,8 +30,8 @@ const AuthorsTable = () => {
   });
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 296.0 },
-    { field: 'name', headerName: 'Name', width: 248.0 }
+    { field: 'id', headerName: t('common.id'), width: 296.0 },
+    { field: 'name', headerName: t('common.name'), width: 248.0 }
   ];
 
   const onRowClick = (params: GridRowParams) => {
@@ -56,7 +58,7 @@ const AuthorsTable = () => {
       <GridOverlay>
         <WarningRoundedIcon sx={{ fontSize: 64 }}/>
         <Typography variant='h5'>
-          No authors found
+          {t('authors.noAuthorsFound')}
         </Typography>
       </GridOverlay>
     );
@@ -67,7 +69,7 @@ const AuthorsTable = () => {
       <GridOverlay>
         <ErrorIcon sx={{ fontSize: 64 }}/>
         <Typography variant='h5'>
-          Error loading authors
+          {t('authors.errorLoading')}
         </Typography>
       </GridOverlay>
     );

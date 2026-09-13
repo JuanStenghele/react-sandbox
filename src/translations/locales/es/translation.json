@@ -1,3 +1,76 @@
 {
-  "welcome": "Welcome"
+  "app": {
+    "title": "React Sandbox",
+    "byline": "por Juan Stenghele"
+  },
+  "common": {
+    "signIn": "INICIAR SESIÓN",
+    "new": "Nuevo",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "search": "Buscar...",
+    "id": "ID",
+    "name": "Nombre",
+    "title": "Título",
+    "isbn": "ISBN",
+    "description": "Descripción",
+    "publicationDate": "Fecha de publicación",
+    "language": "Idioma",
+    "signOut": "Cerrar sesión"
+  },
+  "drawer": {
+    "authors": "Autores",
+    "books": "Libros"
+  },
+  "authors": {
+    "title": "Autores",
+    "noAuthorsFound": "No se encontraron autores",
+    "errorLoading": "Error al cargar autores",
+    "created": "Autor {{name}} creado correctamente",
+    "createFailed": "Error al crear autor: {{message}}",
+    "updated": "Autor {{name}} actualizado correctamente",
+    "updateFailed": "Error al actualizar autor: {{message}}",
+    "deleted": "{{count}} autores eliminados correctamente",
+    "deleteFailed": "Error al eliminar autores: {{message}}"
+  },
+  "books": {
+    "title": "Libros",
+    "noBooksFound": "No se encontraron libros",
+    "errorLoading": "Error al cargar libros",
+    "created": "Libro {{title}} creado correctamente",
+    "createFailed": "Error al crear libro: {{message}}",
+    "updated": "Libro {{title}} actualizado correctamente",
+    "updateFailed": "Error al actualizar libro: {{message}}",
+    "deleted": "{{count}} libros eliminados correctamente",
+    "deleteFailed": "Error al eliminar libros: {{message}}",
+    "coverDeleted": "Portada del libro eliminada correctamente",
+    "coverDeleteFailed": "Error al eliminar la portada del libro: {{message}}",
+    "column": {
+      "cover": "Portada",
+      "authorId": "ID de autor",
+      "createdAt": "Fecha de creación"
+    }
+  },
+  "authorForm": {
+    "newTitle": "Nuevo autor",
+    "editTitle": "Editar autor"
+  },
+  "bookForm": {
+    "newTitle": "Nuevo libro",
+    "editTitle": "Editar libro",
+    "authorLabel": "Autor *",
+    "coverImage": {
+      "select": "Seleccionar una imagen de portada...",
+      "alt": "Imagen de portada",
+      "inputAlt": "Entrada de imagen de portada",
+      "coverOf": "portada de {{title}}",
+      "tooLarge": "El tamaño de la imagen no puede superar los 10 MB"
+    }
+  },
+  "errors": {
+    "pageNotFound": "Página no encontrada",
+    "unauthorizedAccess": "Acceso no autorizado",
+    "authenticationError": "Error de autenticación: {{message}}"
+  }
 }

@@ -26,3 +26,4 @@ export const spanish: Language = {
 };
 export const languages: Language[] = [english, spanish];
 export const defaultLanguageKey: string = english.key;
+export const languageStorageKey: string = 'language';

@@ -1,8 +1,10 @@
 import { Box, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { useAtom } from 'jotai';
 import { language as languageAtom } from '../../../state/home';
-import { languages } from '../../../constants';
+import { languages, languageStorageKey } from '../../../constants';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
+import i18n from '../../../translations';
+import type { Language } from '../../../types/home';
 
 interface LanguageSubmenu {
   anchorEl: HTMLElement | null;
@@ -12,6 +14,12 @@ interface LanguageSubmenu {
 
 const LanguageSubmenu = (props: LanguageSubmenu) => {
   const [language, setLanguage] = useAtom(languageAtom);
+
+  const onLanguageItemClick = (languageItem: Language) => {
+    setLanguage(languageItem.key);
+    localStorage.setItem(languageStorageKey, languageItem.key);
+    i18n.changeLanguage(languageItem.key);
+  };
 
   return (
     <Menu
@@ -34,9 +42,7 @@ const LanguageSubmenu = (props: LanguageSubmenu) => {
           return (
             <MenuItem
               key={languageItem.key}
-              onClick={() => {
-                setLanguage(languageItem.key);
-              }}
+              onClick={() => {onLanguageItemClick(languageItem)}}
             >
               <Box
                 sx={{

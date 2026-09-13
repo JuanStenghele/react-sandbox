@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import type { MouseEvent } from "react";
+import { useTranslation } from "react-i18next";
 
 interface BooksTableCoverImageProps {
   url: string;
@@ -7,6 +8,8 @@ interface BooksTableCoverImageProps {
 }
 
 const BooksTableCoverImage = (props: BooksTableCoverImageProps) => {
+  const { t } = useTranslation();
+
   const handleClick = (event: MouseEvent) => {
     event.stopPropagation();
     window.open(props.url, "_blank");
@@ -30,7 +33,7 @@ const BooksTableCoverImage = (props: BooksTableCoverImageProps) => {
     >
       <img
         src={props.url}
-        alt={`cover of ${props.book_title}`}
+        alt={t('bookForm.coverImage.coverOf', { title: props.book_title })}
         draggable={false}
         style={{
           height: 64,

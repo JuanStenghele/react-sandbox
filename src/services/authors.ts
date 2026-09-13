@@ -2,6 +2,7 @@ import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClie
 import backend from './backend';
 import type { Author } from '../types/author';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 
 export interface PostAuthorRequest {
   name: string;
@@ -20,18 +21,19 @@ export const postAuthor = async (data: PostAuthorRequest): Promise<PostAuthorRes
 export const usePostAuthor = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (params: PostAuthorRequest) => postAuthor(params),
     onSuccess: (_, variables: PostAuthorRequest) => {
       queryClient.invalidateQueries({
         queryKey: ['authors']
       });
-      enqueueSnackbar(`Author ${variables.name} created successfully`, {
+      enqueueSnackbar(t('authors.created', { name: variables.name }), {
         variant: 'success'
       });
     },
     onError: (error: Error) => {
-      enqueueSnackbar(`Failed to create author: ${error.name} - ${error.message}`, {
+      enqueueSnackbar(t('authors.createFailed', { message: `${error.name} - ${error.message}` }), {
         variant: 'error'
       });
     }
@@ -109,18 +111,19 @@ export const deleteAuthors = async (data: DeleteAuthorsRequest): Promise<void> =
 export const useDeleteAuthors = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (params: DeleteAuthorsRequest) => deleteAuthors(params),
     onSuccess: (_, variables: DeleteAuthorsRequest) => {
       queryClient.invalidateQueries({
         queryKey: ['authors']
       });
-      enqueueSnackbar(`Deleted ${variables.ids.length} authors successfully`, {
+      enqueueSnackbar(t('authors.deleted', { count: variables.ids.length }), {
         variant: 'success'
       });
     },
     onError: (error: Error) => {
-      enqueueSnackbar(`Failed to delete authors: ${error.name} - ${error.message}`, {
+      enqueueSnackbar(t('authors.deleteFailed', { message: `${error.name} - ${error.message}` }), {
         variant: 'error'
       });
     }
@@ -144,18 +147,19 @@ export const patchAuthor = async (id: string, data: PatchAuthorRequest): Promise
 export const usePatchAuthor = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: (params: { id: string; data: PatchAuthorRequest }) => patchAuthor(params.id, params.data),
     onSuccess: (_, variables: { id: string; data: PatchAuthorRequest }) => {
       queryClient.invalidateQueries({
         queryKey: ['authors']
       });
-      enqueueSnackbar(`Author ${variables.data.name} updated successfully`, {
+      enqueueSnackbar(t('authors.updated', { name: variables.data.name }), {
         variant: 'success'
       });
     },
     onError: (error: Error) => {
-      enqueueSnackbar(`Failed to update author: ${error.name} - ${error.message}`, {
+      enqueueSnackbar(t('authors.updateFailed', { message: `${error.name} - ${error.message}` }), {
         variant: 'error'
       });
     }

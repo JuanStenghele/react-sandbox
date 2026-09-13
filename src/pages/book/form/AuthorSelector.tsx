@@ -4,6 +4,7 @@ import { forwardRef, useState } from 'react';
 import type { HTMLAttributes, UIEvent } from 'react';
 import { useGetAuthor, useGetInfiniteAuthors } from '../../../services/authors';
 import { useDebounce } from 'use-debounce';
+import { useTranslation } from 'react-i18next';
 
 interface AuthorSelectorProps {
   width: number;
@@ -14,6 +15,7 @@ interface AuthorSelectorProps {
 const AuthorSelector = (props: AuthorSelectorProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+  const { t } = useTranslation();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useGetInfiniteAuthors({ 
     search_term: debouncedSearchTerm, 
@@ -78,7 +80,7 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
       renderInput={(params: AutocompleteRenderInputParams) => (
         <TextField
           {...params}
-          label='Author *'
+          label={t('bookForm.authorLabel')}
         />
       )}
     />

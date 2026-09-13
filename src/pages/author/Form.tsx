@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import { ROUTES } from '../../constants';
 import { usePatchAuthor, usePostAuthor } from '../../services/authors';
 import type { Author } from '../../types/author';
+import { useTranslation } from 'react-i18next';
 
 export interface AuthorPageProps {
   author?: Author;
@@ -18,6 +19,7 @@ interface AuthorFormInput {
 const AuthorForm = (props: AuthorPageProps) => {
   const isEditMode = !!props.author;
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { mutate: postMutate, isPending: isPostPending } = usePostAuthor();
   const { mutate: patchMutate, isPending: isPatchPending } = usePatchAuthor();
   const isPending = isPostPending || isPatchPending;
@@ -56,7 +58,7 @@ const AuthorForm = (props: AuthorPageProps) => {
         {
           isEditMode && (
             <TextField
-              label='ID'
+              label={t('common.id')}
               sx={{
                 width: '100%',
                 maxWidth: 726.0
@@ -74,7 +76,7 @@ const AuthorForm = (props: AuthorPageProps) => {
             <TextField
               {...field}
               required
-              label='Name'
+              label={t('common.name')}
               slotProps={{
                 htmlInput: {
                   maxLength: 128
@@ -97,7 +99,7 @@ const AuthorForm = (props: AuthorPageProps) => {
           onClick={navigateToAuthorsPage}
           disabled={isPending}
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           type='submit'
@@ -110,7 +112,7 @@ const AuthorForm = (props: AuthorPageProps) => {
           loading={isPending}
           disableElevation
         >
-          Save
+          {t('common.save')}
         </Button>
       </Box>
     </Box>

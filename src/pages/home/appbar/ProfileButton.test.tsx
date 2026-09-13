@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 import { useAuth } from 'react-oidc-context';
 import { buildAuthProps } from '../../../test/utils';
 import ProfileButton from './ProfileButton';
+import i18n from '../../../translations';
 
 vi.mock('react-oidc-context');
 
@@ -12,6 +13,7 @@ const mockedUseAuth = vi.mocked(useAuth);
 describe('ProfileButton', () => {
   afterEach(() => {
     vi.clearAllMocks();
+    i18n.changeLanguage('en');
   });
 
   it('renders the profile icon button', () => {
@@ -58,5 +60,24 @@ describe('ProfileButton', () => {
     fireEvent.click(screen.getByText('Sign Out'));
 
     expect(removeUser).toHaveBeenCalled();
+  });
+
+  it('switches the language and updates the translated text', () => {
+    mockedUseAuth.mockReturnValue(
+      buildAuthProps({ isAuthenticated: true })
+    );
+    render(<ProfileButton />);
+
+    fireEvent.click(screen.getByLabelText('profile'));
+    expect(screen.getByText('Sign Out')).toBeInTheDocument();
+    expect(screen.getByText('Language')).toBeInTheDocument();
+
+    fireEvent.mouseEnter(screen.getByText('Language'));
+    fireEvent.click(screen.getByText('Español'));
+
+    expect(screen.getByText('Cerrar sesión')).toBeInTheDocument();
+    expect(screen.getByText('Idioma')).toBeInTheDocument();
+    expect(screen.queryByText('Sign Out')).not.toBeInTheDocument();
+    expect(screen.queryByText('Language')).not.toBeInTheDocument();
   });
 });

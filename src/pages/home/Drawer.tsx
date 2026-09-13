@@ -10,10 +10,12 @@ import { homeDrawerOpen } from '../../state/home';
 import { useAtomValue } from 'jotai';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../constants';
+import { useTranslation } from 'react-i18next';
 
 const HomeDrawer = () => {
   const drawerWidth = 200;
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const drawerOpen = useAtomValue(homeDrawerOpen);
 
@@ -22,8 +24,8 @@ const HomeDrawer = () => {
   };
 
   const items = [
-    { text: 'Authors', icon: <HistoryEduRoundedIcon />, path: ROUTES.authors },
-    { text: 'Books', icon: <BookIcon />, path: ROUTES.books }
+    { text: t('drawer.authors'), icon: <HistoryEduRoundedIcon />, path: ROUTES.authors },
+    { text: t('drawer.books'), icon: <BookIcon />, path: ROUTES.books }
   ];
 
   return (

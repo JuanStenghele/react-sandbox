@@ -10,11 +10,13 @@ import { useAtom } from "jotai";
 import { booksTableState, type BooksTableState } from "../../state/books";
 import SearchIcon from "@mui/icons-material/Search";
 import type { ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
 
 const BooksPage = () => {
   const isUserAdmin = useHasPermission(adminScope);
   const navigate = useNavigate();
   const [tableState, setTableState] = useAtom(booksTableState);
+  const { t } = useTranslation();
 
   const { mutate, isPending: isDeletePending } = useDeleteBooks();
 
@@ -39,7 +41,7 @@ const BooksPage = () => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <Typography variant="h4" gutterBottom>
-        Books
+        {t('books.title')}
       </Typography>
       <Box sx={{ mb: 2.0, display: "flex", gap: 1.0 }}>
         <Button
@@ -51,7 +53,7 @@ const BooksPage = () => {
           disabled={!isUserAdmin}
           disableElevation
         >
-          New
+          {t('common.new')}
         </Button>
         <Button
           variant="contained"
@@ -65,11 +67,11 @@ const BooksPage = () => {
           loading={isDeletePending}
           disableElevation
         >
-          Delete
+          {t('common.delete')}
         </Button>
         <TextField
           value={tableState.searchTerm}
-          placeholder="Search..."
+          placeholder={t('common.search')}
           variant="outlined"
           onChange={onSearchTermChange}
           sx={{

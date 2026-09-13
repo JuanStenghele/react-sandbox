@@ -9,9 +9,11 @@ import { useAuth } from 'react-oidc-context';
 import type { MouseEvent } from 'react';
 import LanguageSubmenu from './LanguageSubmenu';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
+import { useTranslation } from 'react-i18next';
 
 const ProfileButton = () => {
   const auth = useAuth();
+  const { t } = useTranslation();
 
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const menuOpen: boolean = Boolean(menuAnchor);
@@ -69,7 +71,7 @@ const ProfileButton = () => {
               <ChevronLeftRoundedIcon sx={{ color: 'text.primary' }} />
             </ListItemIcon>
             <ListItemText>
-              Language
+              {t('common.language')}
             </ListItemText>
           </MenuItem>
           <Divider />
@@ -78,7 +80,7 @@ const ProfileButton = () => {
               <LogoutIcon fontSize='small' color='error'/>
             </ListItemIcon>
             <ListItemText sx={{ color: 'error.main' }}>
-              Sign Out
+              {t('common.signOut')}
             </ListItemText>
           </MenuItem>
         </Box>

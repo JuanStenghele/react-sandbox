@@ -16,11 +16,13 @@ import { booksTableState, type BooksTableState } from '../../../state/books';
 import { useDebounce } from 'use-debounce';
 import { ROUTES } from '../../../constants';
 import { generatePath, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 const BooksTable = () => {
   const navigate = useNavigate();
   const [tableState, setTableState] = useAtom(booksTableState);
   const [debouncedSearchTerm] = useDebounce(tableState.searchTerm, 300);
+  const { t } = useTranslation();
 
   const { data, isFetching, isError } = useGetBooks({
     search_term: debouncedSearchTerm,
@@ -31,7 +33,7 @@ const BooksTable = () => {
   const columns: GridColDef[] = [
     {
       field: 'cover_image_url',
-      headerName: 'Cover',
+      headerName: t('books.column.cover'),
       width: 72.0,
       renderCell: (params) =>
         params.value ? (
@@ -41,13 +43,13 @@ const BooksTable = () => {
           />
         ) : null
     },
-    { field: 'id', headerName: 'ID', width: 296.0 },
-    { field: 'title', headerName: 'Title', width: 248.0 },
-    { field: 'author_id', headerName: 'Author ID', width: 296.0 },
-    { field: 'description', headerName: 'Description', width: 248.0 },
-    { field: 'isbn', headerName: 'ISBN', width: 148.0 },
-    { field: 'publication_date', headerName: 'Publication Date', type: 'date', width: 148.0 },
-    { field: 'created_at', headerName: 'Created At', type: 'dateTime', width: 148.0 }
+    { field: 'id', headerName: t('common.id'), width: 296.0 },
+    { field: 'title', headerName: t('common.title'), width: 248.0 },
+    { field: 'author_id', headerName: t('books.column.authorId'), width: 296.0 },
+    { field: 'description', headerName: t('common.description'), width: 248.0 },
+    { field: 'isbn', headerName: t('common.isbn'), width: 148.0 },
+    { field: 'publication_date', headerName: t('common.publicationDate'), type: 'date', width: 148.0 },
+    { field: 'created_at', headerName: t('books.column.createdAt'), type: 'dateTime', width: 148.0 }
   ];
 
   const onRowClick = (params: GridRowParams) => {
@@ -74,7 +76,7 @@ const BooksTable = () => {
       <GridOverlay>
         <WarningRoundedIcon sx={{ fontSize: 64 }}/>
         <Typography variant='h5'>
-          No books found
+          {t('books.noBooksFound')}
         </Typography>
       </GridOverlay>
     );
@@ -85,7 +87,7 @@ const BooksTable = () => {
       <GridOverlay>
         <ErrorIcon sx={{ fontSize: 64 }}/>
         <Typography variant='h5'>
-          Error loading books
+          {t('books.errorLoading')}
         </Typography>
       </GridOverlay>
     );
