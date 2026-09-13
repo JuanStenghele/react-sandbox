@@ -1,77 +1,66 @@
-# React + TypeScript + Vite
+# React Sandbox
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Example web frontend for testing and learning new stuff. Developed in TypeScript using React. It is the UI for the [FastAPI Sandbox](https://github.com/juan-stenghele/fastapi-sandbox) backend.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js (v24.16.0 OK)
 
-## React Compiler
+## How to run
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Install the dependencies:
 
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The frontend expects the [FastAPI Sandbox](https://github.com/juan-stenghele/fastapi-sandbox) backend to be running. The required environment variables are already set in `.env.development` for local development, so no changes are needed:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `VITE_BACKEND_BASE_URL=http://localhost:8000`
+- `VITE_OIDC_AUTHORITY=http://localhost:8080/fastapi-sandbox`
+- `VITE_OIDC_CLIENT_ID=fastapi-sandbox`
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Start the development server:
 
+```bash
+npm run dev
+```
+
+The app will be running on `http://localhost:5173/`.
+
+### Auth
+
+The app uses OAuth 2.0 with the Authorization Code flow + PKCE, implemented with `react-oidc-context` / `oidc-client-ts`. In production, Auth0 acts as the identity provider. Locally, [mock-oauth2-server](https://github.com/navikt/mock-oauth2-server) replaces it: it implements the same protocol, issues real JWTs and exposes a JWKS endpoint, so the application code is identical in both environments. This avoids hitting a real Auth0 tenant during development and system tests and avoids adding an external dependency to the local stack.
+
+#### mock-oauth2-server
+
+`.env.development` credentials are prepared to use this service, so no changes are needed. Make sure the [FastAPI Sandbox](https://github.com/juan-stenghele/fastapi-sandbox) stack is running, then click `SIGN IN` on the login page and enter any user.
+
+#### Auth0
+
+Update the credentials in the `.env.development` file to use Auth0.
+
+- `VITE_OIDC_AUTHORITY=https://<your-tenant>.us.auth0.com`: Get your tenant on the top left of the Auth0 dashboard or in `Applications > [Your App] > Settings > Domain`.
+- `VITE_OIDC_CLIENT_ID=<your-client-id>`: Found in `Applications > [Your App] > Settings > Client ID`.
+
+Make sure the Auth0 application is configured as a single-page application with `http://localhost:5173` in the allowed callback, logout and web origins.
+
+## Tests
+
+To run the tests execute:
+
+```bash
+npm run test
+```
+
+To run the linter execute:
+
+```bash
+npm run lint
+```
+
+To build the app for production execute:
+
+```bash
+npm run build
 ```
