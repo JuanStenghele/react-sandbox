@@ -1,17 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { useState } from 'react';
+import { useSnackbar } from 'notistack';
 import BookCoverImagePicker from './CoverImagePicker';
 import userEvent from '@testing-library/user-event';
+
+vi.mock('notistack');
 
 describe('BookCoverImagePicker', () => {
   const onChangeMock = vi.fn();
   const onShowExternalImageChangeMock = vi.fn();
+  const mockedUseSnackbar = vi.mocked(useSnackbar);
+  const enqueueSnackbar = vi.fn();
 
   beforeEach(() => {
     URL.createObjectURL = vi.fn(() => 'blob:mock-url');
     onChangeMock.mockClear();
     onShowExternalImageChangeMock.mockClear();
+    enqueueSnackbar.mockClear();
+    mockedUseSnackbar.mockReturnValue({
+      enqueueSnackbar,
+      closeSnackbar: vi.fn()
+    });
   });
 
   const buildControlledWrapper = (existingImageURL?: string) => {
@@ -51,6 +61,61 @@ describe('BookCoverImagePicker', () => {
     expect(input).toBeInTheDocument();
     expect(image).toBeNull();
     expect(explanatoryText).toBeVisible();
+  });
+
+  it('accepts only JPEG, PNG and WebP image formats', () => {
+    render(
+      <BookCoverImagePicker
+        onChange={onChangeMock}
+        width={100.0}
+        height={100.0}
+        showExternalImage={false}
+        onShowExternalImageChange={onShowExternalImageChangeMock}
+      />
+    );
+
+    expect(screen.getByLabelText('Cover image input')).toHaveAttribute(
+      'accept',
+      'image/jpeg,image/png,image/webp'
+    );
+  });
+
+  it('rejects a cover image larger than 10 MB and shows an error notification', async () => {
+    render(
+      <BookCoverImagePicker
+        onChange={onChangeMock}
+        width={100.0}
+        height={100.0}
+        showExternalImage={false}
+        onShowExternalImageChange={onShowExternalImageChangeMock}
+      />
+    );
+
+    const largeFile = new File([new Uint8Array(11 * 1024 * 1024)], 'large.png', { type: 'image/png' });
+    await userEvent.upload(screen.getByLabelText('Cover image input') as HTMLInputElement, largeFile);
+
+    expect(onChangeMock).not.toHaveBeenCalled();
+    expect(enqueueSnackbar).toHaveBeenCalledWith('Image size cannot be greater than 10 MB', {
+      variant: 'error'
+    });
+  });
+
+  it('accepts a cover image within the 10 MB limit', async () => {
+    render(
+      <BookCoverImagePicker
+        onChange={onChangeMock}
+        width={100.0}
+        height={100.0}
+        showExternalImage={false}
+        onShowExternalImageChange={onShowExternalImageChangeMock}
+      />
+    );
+
+    const smallFile = new File([new Uint8Array(1024)], 'small.png', { type: 'image/png' });
+    await userEvent.upload(screen.getByLabelText('Cover image input') as HTMLInputElement, smallFile);
+
+    expect(onChangeMock).toHaveBeenCalledWith(smallFile);
+    expect(enqueueSnackbar).not.toHaveBeenCalled();
   });
 
   it('renders an image when an existing image is provided', () => {

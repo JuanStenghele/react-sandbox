@@ -3,6 +3,7 @@ import ImageSearchRoundedIcon from '@mui/icons-material/ImageSearchRounded';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import RestoreRoundedIcon from '@mui/icons-material/RestoreRounded';
 import { useRef, type ChangeEvent } from 'react';
+import { useSnackbar } from 'notistack';
 
 interface BookCoverImagePickerProps {
   width: number;
@@ -16,6 +17,7 @@ interface BookCoverImagePickerProps {
 
 const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { enqueueSnackbar } = useSnackbar();
 
   const onCoverImageSelected = (file: File) => {
     props.onChange(file);
@@ -67,10 +69,18 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
         aria-label='Cover image input'
         ref={inputRef}
         type='file'
+        accept='image/jpeg,image/png,image/webp'
         hidden
         onChange={(event: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
           const file = event.target.files?.[0];
           if (!file) return;
+          if (file.size > 10 * 1024 * 1024 ) { // Max 10 MB
+            event.target.value = "";
+            enqueueSnackbar('Image size cannot be greater than 10 MB', {
+              variant: 'error'
+            });
+            return;
+          }
           onCoverImageSelected(file);
         }}
       />
