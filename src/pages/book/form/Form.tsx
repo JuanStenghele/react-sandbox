@@ -1,7 +1,8 @@
 import { Box, Button, TextField } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
-import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
+import { useState } from 'react';
+import { useForm, Controller, type SubmitHandler, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { ROUTES } from '../../../constants';
 import type { Book } from '../../../types/book';
@@ -20,14 +21,15 @@ interface BookFormInput {
   title: string;
   description: string;
   isbn: string;
-  publicationDate: Date;
+  publicationDate: Date | null;
   authorId: string;
-  coverImage: File;
+  coverImage: File | null;
 }
 
 const BookForm = (props: BookPageProps) => {
   const isEditMode = !!props.book;
   const navigate = useNavigate();
+  const [showExternalImage, setShowExternalImage] = useState(props.book?.cover_image_url != null);
   const { mutateAsync: postMutate, isPending: isPostPending } = usePostBook();
   const { mutateAsync: patchMutate, isPending: isPatchPending } = usePatchBook();
   const { mutateAsync: deleteCoverMutate, isPending: isDeleteCoverPending } = useDeleteBookCover();
@@ -37,13 +39,14 @@ const BookForm = (props: BookPageProps) => {
   const minDate = new Date(0);
   minDate.setFullYear(1, 0, 1);
 
-  const { control, handleSubmit, formState: { isValid } } = useForm<BookFormInput>({
+  const { control, handleSubmit, formState: { isValid, isDirty } } = useForm<BookFormInput>({
     defaultValues: {
-      title: props.book?.title,
-      description: props.book?.description ?? undefined,
-      isbn: props.book?.isbn ?? undefined,
-      publicationDate: props.book?.publication_date ?? undefined,
-      authorId: props.book?.author_id
+      title: props.book?.title ?? '',
+      description: props.book?.description ?? '',
+      isbn: props.book?.isbn ?? '',
+      publicationDate: props.book?.publication_date ?? null,
+      authorId: props.book?.author_id ?? '',
+      coverImage: null
     }
   });
 
@@ -51,21 +54,36 @@ const BookForm = (props: BookPageProps) => {
     navigate(ROUTES.books);
   };
 
+  const coverImage = useWatch({
+    control,
+    name: 'coverImage'
+  });
+
+  const shouldDeleteCoverImage = (): boolean => {
+    return !showExternalImage && coverImage === null && Boolean(props.book?.cover_image_url);
+  }
+
+  const wereChangesMade = (): boolean => {
+    return isDirty || shouldDeleteCoverImage();
+  };
+
   const onSubmit: SubmitHandler<BookFormInput> = async (data: BookFormInput) => {
     if (isEditMode) {
-      await patchMutate({ 
-        id: props.book!.id, 
-        data: {
-          title: data.title,
-          author_id: data.authorId,
-          description: data.description,
-          isbn: data.isbn,
-          publication_date: data.publicationDate,
-          cover_image: data.coverImage
-        }
-      });
+      if (isDirty) {
+        await patchMutate({ 
+          id: props.book!.id, 
+          data: {
+            title: data.title,
+            author_id: data.authorId,
+            description: data.description,
+            isbn: data.isbn,
+            publication_date: data.publicationDate ?? undefined,
+            cover_image: data.coverImage ?? undefined
+          }
+        });
+      }
       // User wants to delete the cover image
-      if (data.coverImage === undefined && props.book?.cover_image_url) {
+      if (shouldDeleteCoverImage()) {
         await deleteCoverMutate(props.book!.id);
       }
       navigateToBooksPage();
@@ -75,8 +93,8 @@ const BookForm = (props: BookPageProps) => {
         author_id: data.authorId,
         description: data.description,
         isbn: data.isbn,
-        publication_date: data.publicationDate,
-        cover_image: data.coverImage
+        publication_date: data.publicationDate ?? undefined,
+        cover_image: data.coverImage ?? undefined
       });
       navigateToBooksPage();
     }
@@ -103,6 +121,8 @@ const BookForm = (props: BookPageProps) => {
                 width={300.0}
                 height={320.0}
                 existingImageURL={props.book?.cover_image_url ?? undefined}
+                showExternalImage={showExternalImage}
+                onShowExternalImageChange={setShowExternalImage}
               />
             )}
           />
@@ -247,7 +267,7 @@ const BookForm = (props: BookPageProps) => {
           size='large'
           startIcon={<SaveIcon />}
           sx={{ width: 148.0 }}
-          disabled={!isValid}
+          disabled={!isValid || !wereChangesMade()}
           loadingPosition='start'
           loading={isPending}
           disableElevation

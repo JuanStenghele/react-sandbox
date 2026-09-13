@@ -6,20 +6,27 @@ import userEvent from '@testing-library/user-event';
 
 describe('BookCoverImagePicker', () => {
   const onChangeMock = vi.fn();
+  const onShowExternalImageChangeMock = vi.fn();
 
   beforeEach(() => {
     URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    onChangeMock.mockClear();
+    onShowExternalImageChangeMock.mockClear();
   });
 
-  const buildControlledWrapper = () => {
+  const buildControlledWrapper = (existingImageURL?: string) => {
     const TestComponent = () => {
-      const [value, setValue] = useState<File | undefined>(undefined);
+      const [value, setValue] = useState<File | null>(null);
+      const [showExternalImage, setShowExternalImage] = useState(existingImageURL !== undefined);
       return (
         <BookCoverImagePicker
           width={100.0}
           height={100.0}
+          existingImageURL={existingImageURL}
           value={value}
-          onChange={(file) => setValue(file ?? undefined)}
+          onChange={setValue}
+          showExternalImage={showExternalImage}
+          onShowExternalImageChange={setShowExternalImage}
         />
       );
     };
@@ -27,7 +34,15 @@ describe('BookCoverImagePicker', () => {
   };
 
   it('renders an explanatory text when no existing image is provided', () => {
-    render(<BookCoverImagePicker onChange={onChangeMock} width={100.0} height={100.0} />);
+    render(
+      <BookCoverImagePicker
+        onChange={onChangeMock}
+        width={100.0}
+        height={100.0}
+        showExternalImage={false}
+        onShowExternalImageChange={onShowExternalImageChangeMock}
+      />
+    );
 
     const input = screen.getByLabelText('Cover image input');
     const image = screen.queryByAltText('Cover Image');
@@ -39,7 +54,16 @@ describe('BookCoverImagePicker', () => {
   });
 
   it('renders an image when an existing image is provided', () => {
-    render(<BookCoverImagePicker onChange={onChangeMock} width={100.0} height={100.0} existingImageURL="https://example.com/cover.jpg" />);
+    render(
+      <BookCoverImagePicker
+        onChange={onChangeMock}
+        width={100.0}
+        height={100.0}
+        existingImageURL="https://example.com/cover.jpg"
+        showExternalImage={true}
+        onShowExternalImageChange={onShowExternalImageChangeMock}
+      />
+    );
 
     const image = screen.queryByAltText('Cover Image');
     const explanatoryText = screen.queryByText('Select a cover image...');
@@ -79,7 +103,8 @@ describe('BookCoverImagePicker', () => {
   });
 
   it('restores the existing image when the user resets it', async () => {
-    render(<BookCoverImagePicker onChange={onChangeMock} width={100.0} height={100.0} existingImageURL="https://example.com/cover.jpg" />);
+    const Wrapper = buildControlledWrapper('https://example.com/cover.jpg');
+    render(<Wrapper />);
 
     expect(screen.getByAltText('Cover Image')).toBeVisible();
     expect(screen.queryByTestId('reset-cover-image')).not.toBeInTheDocument();

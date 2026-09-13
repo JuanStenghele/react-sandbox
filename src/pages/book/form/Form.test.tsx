@@ -203,39 +203,67 @@ describe('BookForm', () => {
     expect(screen.getByDisplayValue(sampleBook.description!)).toBeInTheDocument();
   });
 
-  it('enables the Save button when the title is prefilled in edit mode', async () => {
+  it('disables the Save button when no changes are made in edit mode', () => {
     const wrapper = buildBookFormWrapper();
 
     render(<BookForm book={sampleBook} />, { wrapper });
 
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  it('disables the Save button when the book has no cover image and no changes are made in edit mode', () => {
+    const bookWithoutCover = { ...sampleBook, cover_image_url: null };
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm book={bookWithoutCover} />, { wrapper });
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  it('enables the Save button when the existing cover image is deleted in edit mode', async () => {
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm book={sampleBook} />, { wrapper });
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(saveButton).toBeDisabled();
+
+    await userEvent.click(screen.getByTestId('delete-cover-image'));
+
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+      expect(saveButton).toBeEnabled();
     });
   });
 
-  it('submits via PATCH, deletes the existing cover image, and redirects in edit mode', async () => {
-    mock.onPatch(`/v1/books/${sampleBook.id}`).reply(200, sampleBook);
+  it('re-disables the Save button when the cover image is restored after deletion', async () => {
+    const wrapper = buildBookFormWrapper();
+
+    render(<BookForm book={sampleBook} />, { wrapper });
+
+    await userEvent.click(screen.getByTestId('delete-cover-image'));
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(saveButton).toBeEnabled();
+
+    await userEvent.click(screen.getByTestId('reset-cover-image'));
+
+    await waitFor(() => {
+      expect(saveButton).toBeDisabled();
+    });
+  });
+
+  it('deletes the existing cover image and redirects when the user removes it in edit mode', async () => {
     mock.onDelete(`/v1/books/${sampleBook.id}/cover-images`).reply(204);
     const wrapper = buildBookFormWrapper();
 
     render(<BookForm book={sampleBook} />, { wrapper });
 
+    await userEvent.click(screen.getByTestId('delete-cover-image'));
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
-      expect(mock.history.patch.length).toBe(1);
-      expect(mock.history.patch[0].url).toContain(sampleBook.id);
-
-      const formData = mock.history.patch[0].data as FormData;
-      expect(formData.get('title')).toBe(sampleBook.title);
-      expect(formData.get('author_id')).toBe(sampleBook.author_id);
-      expect(formData.get('description')).toBe(sampleBook.description);
-      expect(formData.get('isbn')).toBe(sampleBook.isbn);
-      expect(formData.get('publication_date')).toBe('2019-09-13');
-      expect(formData.get('cover_image')).toBeNull();
-
       expect(mock.history.delete.length).toBe(1);
       expect(mock.history.delete[0].url).toBe(`/v1/books/${sampleBook.id}/cover-images`);
+      expect(mock.history.patch.length).toBe(0);
 
       expect(screen.getByTestId('location')).toHaveTextContent('/books');
     });
@@ -261,12 +289,16 @@ describe('BookForm', () => {
     });
   });
 
-  it('does not delete the cover when the book has no cover image in edit mode', async () => {
+  it('submits via PATCH without deleting the cover when the book has no cover image in edit mode', async () => {
     const bookWithoutCover = { ...sampleBook, cover_image_url: null };
     mock.onPatch(`/v1/books/${bookWithoutCover.id}`).reply(200, bookWithoutCover);
     const wrapper = buildBookFormWrapper();
 
     render(<BookForm book={bookWithoutCover} />, { wrapper });
+
+    const titleField = screen.getByRole('textbox', { name: 'Title' });
+    await userEvent.clear(titleField);
+    await userEvent.type(titleField, 'Updated title');
 
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 

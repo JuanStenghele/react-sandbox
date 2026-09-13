@@ -2,28 +2,30 @@ import { Box, IconButton, Typography } from '@mui/material';
 import ImageSearchRoundedIcon from '@mui/icons-material/ImageSearchRounded';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import RestoreRoundedIcon from '@mui/icons-material/RestoreRounded';
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useRef, type ChangeEvent } from 'react';
 
 interface BookCoverImagePickerProps {
   width: number;
   height: number;
   existingImageURL?: string ;
-  value?: File;
+  value?: File | null;
   onChange: (coverImage: File | null) => void;
+  showExternalImage: boolean;
+  onShowExternalImageChange: (show: boolean) => void;
 }
 
 const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [showExternalImage, setShowExternalImage] = useState<boolean>(props.existingImageURL !== undefined);
 
   const onCoverImageSelected = (file: File) => {
     props.onChange(file);
+    props.onShowExternalImageChange(false);
   };
 
   const onDeleteCoverImageClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (showExternalImage) {
-      setShowExternalImage(false);
+    if (props.showExternalImage) {
+      props.onShowExternalImageChange(false);
     } else if (props.value) {
       props.onChange(null);
     }
@@ -32,7 +34,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const getDisplayedImageURL = () => {
     if (props.value) {
       return URL.createObjectURL(props.value);
-    } else if (showExternalImage && props.existingImageURL) {
+    } else if (props.showExternalImage && props.existingImageURL) {
       return props.existingImageURL;
     }
     return null;
@@ -41,7 +43,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const onResetCoverImageClicked = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     if (props.existingImageURL) {
-      setShowExternalImage(true);
+      props.onShowExternalImageChange(true);
     }
   };
 
