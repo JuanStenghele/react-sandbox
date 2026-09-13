@@ -25,3 +25,4 @@ export const spanish: Language = {
   flag: AR
 };
 export const languages: Language[] = [english, spanish];
+export const defaultLanguageKey: string = english.key;

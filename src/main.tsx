@@ -9,6 +9,9 @@ import { AuthProvider } from 'react-oidc-context';
 import { authOIDCConfig } from './services/auth';
 import { SnackbarProvider } from 'notistack'
 
+// Initialize translations
+import './translations';
+
 const queryClient = new QueryClient({
   defaultOptions: { 
     queries: { 

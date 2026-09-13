@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
-import { english } from '../constants';
+import { defaultLanguageKey } from '../constants';
 
 export const homeDrawerOpen = atom(true);
 
-export const language = atom(english.key);
+export const language = atom(defaultLanguageKey);

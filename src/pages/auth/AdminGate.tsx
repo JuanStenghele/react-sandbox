@@ -5,7 +5,7 @@ import { useAuth } from 'react-oidc-context';
 const AdminGate = () => {
   const auth = useAuth();
 
-  const scopes = auth.user?.scope?.split(" ") ?? [];
+  const scopes = auth.user?.scope?.split(' ') ?? [];
 
   if (scopes.includes(adminScope)) {
     return <Outlet />;
