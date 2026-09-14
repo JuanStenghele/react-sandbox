@@ -43,6 +43,9 @@ const LanguageSubmenu = (props: LanguageSubmenu) => {
             <MenuItem
               key={languageItem.key}
               onClick={() => {onLanguageItemClick(languageItem)}}
+              sx={{
+                width: 174.0
+              }}
             >
               <Box
                 sx={{
