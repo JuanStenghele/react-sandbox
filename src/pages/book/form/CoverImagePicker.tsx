@@ -1,10 +1,12 @@
 import { Box, IconButton, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import ImageSearchRoundedIcon from '@mui/icons-material/ImageSearchRounded';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import RestoreRoundedIcon from '@mui/icons-material/RestoreRounded';
 import { useRef, type ChangeEvent } from 'react';
 import { useSnackbar } from 'notistack';
 import { useTranslation } from 'react-i18next';
+import { lightTheme } from '../../../constants';
 
 interface BookCoverImagePickerProps {
   width: number;
@@ -20,6 +22,9 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { enqueueSnackbar } = useSnackbar();
   const { t } = useTranslation();
+
+  const theme = useTheme();
+  const isLightMode = theme.palette.mode === lightTheme;
 
   const onCoverImageSelected = (file: File) => {
     props.onChange(file);
@@ -59,10 +64,11 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
       sx={{
         width: props.width,
         height: props.height,
-        border: '1px solid rgba(0, 0, 0, 0.23)',
+        border: '1px solid',
+        borderColor: isLightMode ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)',
         borderRadius: 1.0,
         '&:hover': {
-          border: '1px solid rgba(0, 0, 0, 0.87)'
+          borderColor: 'text.primary'
         },
         cursor: 'pointer'
       }}
@@ -118,9 +124,9 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
                 top: 10.0,
                 right: 10.0,
                 zIndex: 2,
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                backgroundColor: isLightMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.2)',
                 '&:hover': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                  backgroundColor: isLightMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.3)'
                 }
               }}
               onClick={onDeleteCoverImageClicked}
@@ -128,7 +134,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
               <ClearRoundedIcon
                 data-testid='delete-cover-image'
                 sx={{ 
-                  color: 'white', 
+                  color: isLightMode ? 'common.white' : 'common.black', 
                   fontSize: 16.0 
                 }}
               />
@@ -146,12 +152,12 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
               }}
             >
               <ImageSearchRoundedIcon
-                sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+                sx={{ color: 'text.secondary' }}
                 fontSize='large'
               />
               <Typography 
                 variant='body1'
-                sx={{ color: 'rgba(0, 0, 0, 0.6)' }}
+                sx={{ color: 'text.secondary' }}
               >
                 {t('bookForm.coverImage.select')}
               </Typography>
@@ -165,9 +171,9 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
                     top: 10.0,
                     right: 10.0,
                     zIndex: 2,
-                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    backgroundColor: isLightMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.2)',
                     '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                      backgroundColor: isLightMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.3)'
                     }
                   }}
                   onClick={onResetCoverImageClicked}
@@ -175,7 +181,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
                   <RestoreRoundedIcon
                     data-testid='reset-cover-image'
                     sx={{ 
-                      color: 'white', 
+                      color: isLightMode ? 'common.white' : 'common.black', 
                       fontSize: 16.0 
                     }}
                   />
