@@ -7,6 +7,8 @@ import { homeDrawerOpen } from '../../../state/home';
 import { useAtom } from 'jotai';
 import ProfileButton from './ProfileButton';
 import { useTranslation } from 'react-i18next';
+import ThemeSwitch from './ThemeSwitch';
+import { Box } from '@mui/material';
 
 const HomeAppBar = () => {
   const [drawerOpen, setDrawerOpen] = useAtom(homeDrawerOpen);
@@ -32,6 +34,11 @@ const HomeAppBar = () => {
         <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
           {t('app.title')}
         </Typography>
+        <Box
+          sx={{ marginRight: 1.0 }}
+        >
+          <ThemeSwitch />
+        </Box>
         <ProfileButton />
       </Toolbar>
     </AppBar>

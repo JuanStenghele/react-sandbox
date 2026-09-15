@@ -11,7 +11,7 @@ const LoginPage = () => {
   const { t } = useTranslation();
 
   if (auth.isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to='/' replace />;
   }
 
   const onSignInButtonClick = () => {
@@ -24,7 +24,7 @@ const LoginPage = () => {
       flexDirection: 'column', 
       justifyContent: 'center', 
       height: '100vh', 
-      bgcolor: '#1976d2'
+      bgcolor: 'primary.main'
     }}>
       <Paper elevation={3.0} sx={{ 
         width: '30%',

@@ -1,16 +1,16 @@
-import { Box, Typography, Button, TextField, InputAdornment } from "@mui/material";
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import DeleteIcon from "@mui/icons-material/Delete";
-import BooksTable from "./table/Table";
-import { useNavigate } from "react-router";
-import { adminScope, ROUTES } from "../../constants";
-import { useHasPermission } from "../../services/auth";
-import { useDeleteBooks } from "../../services/books";
-import { useAtom } from "jotai";
-import { booksTableState, type BooksTableState } from "../../state/books";
-import SearchIcon from "@mui/icons-material/Search";
-import type { ChangeEvent } from "react";
-import { useTranslation } from "react-i18next";
+import { Box, Typography, Button, TextField, InputAdornment } from '@mui/material';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import DeleteIcon from '@mui/icons-material/Delete';
+import BooksTable from './table/Table';
+import { useNavigate } from 'react-router';
+import { adminScope, ROUTES } from '../../constants';
+import { useHasPermission } from '../../services/auth';
+import { useDeleteBooks } from '../../services/books';
+import { useAtom } from 'jotai';
+import { booksTableState, type BooksTableState } from '../../state/books';
+import SearchIcon from '@mui/icons-material/Search';
+import type { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const BooksPage = () => {
   const isUserAdmin = useHasPermission(adminScope);
@@ -39,14 +39,14 @@ const BooksPage = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Typography variant='h4' gutterBottom>
         {t('books.title')}
       </Typography>
-      <Box sx={{ mb: 2.0, display: "flex", gap: 1.0 }}>
+      <Box sx={{ mb: 2.0, display: 'flex', gap: 1.0 }}>
         <Button
-          variant="contained"
-          size="large"
+          variant='contained'
+          size='large'
           onClick={onNewButtonClick}
           startIcon={<AddRoundedIcon />}
           sx={{ width: 124.0 }}
@@ -56,14 +56,14 @@ const BooksPage = () => {
           {t('common.new')}
         </Button>
         <Button
-          variant="contained"
-          color="error"
-          size="large"
+          variant='contained'
+          color='error'
+          size='large'
           onClick={onDeleteButtonClick}
           startIcon={<DeleteIcon />}
           sx={{ width: 124.0 }}
           disabled={isDeleteButtonDisabled}
-          loadingPosition="start"
+          loadingPosition='start'
           loading={isDeletePending}
           disableElevation
         >
@@ -72,18 +72,18 @@ const BooksPage = () => {
         <TextField
           value={tableState.searchTerm}
           placeholder={t('common.search')}
-          variant="outlined"
+          variant='outlined'
           onChange={onSearchTermChange}
           sx={{
             width: 440.0,
-            "& .MuiInputBase-root": {
+            '& .MuiInputBase-root': {
               height: 48.0
             }
           }}
           slotProps={{
             input: {
               startAdornment: (
-                <InputAdornment position="start">
+                <InputAdornment position='start'>
                   <SearchIcon />
                 </InputAdornment>
               )

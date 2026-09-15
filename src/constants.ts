@@ -1,4 +1,4 @@
-import type { Language } from './types/home';
+import type { Language, ThemeMode } from './types/home';
 import { AR, US } from 'country-flag-icons/react/3x2';
 
 export const ROUTES = {
@@ -27,3 +27,8 @@ export const spanish: Language = {
 export const languages: Language[] = [english, spanish];
 export const defaultLanguageKey: string = english.key;
 export const languageStorageKey: string = 'language';
+
+export const darkTheme: ThemeMode = 'dark';
+export const lightTheme: ThemeMode = 'light';
+export const defaultTheme: ThemeMode = lightTheme;
+export const themeStorageKey: string = 'theme';

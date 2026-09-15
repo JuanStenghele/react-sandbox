@@ -13,7 +13,7 @@ const NotFoundPage = () => {
       flexDirection: 'column', 
       justifyContent: 'center', 
       height: '100vh', 
-      bgcolor: '#1976d2'
+      bgcolor: 'primary.main'
     }}>
       <Paper elevation={4.0} sx={{ 
         width: '30%',

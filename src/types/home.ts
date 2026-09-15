@@ -5,3 +5,5 @@ export type Language = {
   label: string,
   flag: FlagComponent
 };
+
+export type ThemeMode = 'light' | 'dark';
