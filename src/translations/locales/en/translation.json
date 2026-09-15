@@ -17,7 +17,8 @@
     "description": "Description",
     "publicationDate": "Publication Date",
     "language": "Language",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "rowsPerPage": "Rows per page:"
   },
   "drawer": {
     "authors": "Authors",

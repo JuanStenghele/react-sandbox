@@ -17,7 +17,8 @@
     "description": "Descripción",
     "publicationDate": "Fecha de publicación",
     "language": "Idioma",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "rowsPerPage": "Filas por página:"
   },
   "drawer": {
     "authors": "Autores",
