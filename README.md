@@ -2,6 +2,36 @@
 
 Example web frontend for testing and learning new stuff. Developed in TypeScript using React. It is the UI for the [FastAPI Sandbox](https://github.com/juan-stenghele/fastapi-sandbox) backend.
 
+## Screenshots
+
+**Authors table:**
+
+![Authors list](docs/screenshots/authors.png)
+
+**Books table in dark mode:**
+
+![Books list](docs/screenshots/books.png)
+
+**New book form:**
+
+![New book form](docs/screenshots/new-book-form.png)
+
+**Edit book form in dark mode:**
+
+![Edit book form](docs/screenshots/edit-book-form.png)
+
+**Delete button on selection:**
+
+![Delete confirmation](docs/screenshots/delete-button.png)
+
+**Notifications:**
+
+![Notifications](docs/screenshots/notifications.png)
+
+**Translations support:**
+
+![Translations](docs/screenshots/translations.png)
+
 ## Requirements
 
 - Node.js (v24.16.0 OK)
