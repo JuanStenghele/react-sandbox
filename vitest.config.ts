@@ -5,5 +5,10 @@ export default mergeConfig(viteConfig, defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './test-setup.ts',
+    coverage: {
+      provider: 'v8',
+      reporter: ['html'],
+      reportsDirectory: 'coverage'
+    }
   }
 }))
