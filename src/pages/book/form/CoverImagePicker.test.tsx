@@ -24,10 +24,10 @@ describe('BookCoverImagePicker', () => {
     });
   });
 
-  const buildControlledWrapper = (existingImageURL?: string) => {
+  const buildControlledWrapper = (existingImageURL: string | null = null) => {
     const TestComponent = () => {
       const [value, setValue] = useState<File | null>(null);
-      const [showExternalImage, setShowExternalImage] = useState(existingImageURL !== undefined);
+      const [showExternalImage, setShowExternalImage] = useState(existingImageURL !== null);
       return (
         <BookCoverImagePicker
           width={100.0}
@@ -49,6 +49,7 @@ describe('BookCoverImagePicker', () => {
         onChange={onChangeMock}
         width={100.0}
         height={100.0}
+        existingImageURL={null}
         showExternalImage={false}
         onShowExternalImageChange={onShowExternalImageChangeMock}
       />
@@ -69,6 +70,7 @@ describe('BookCoverImagePicker', () => {
         onChange={onChangeMock}
         width={100.0}
         height={100.0}
+        existingImageURL={null}
         showExternalImage={false}
         onShowExternalImageChange={onShowExternalImageChangeMock}
       />
@@ -86,6 +88,7 @@ describe('BookCoverImagePicker', () => {
         onChange={onChangeMock}
         width={100.0}
         height={100.0}
+        existingImageURL={null}
         showExternalImage={false}
         onShowExternalImageChange={onShowExternalImageChangeMock}
       />
@@ -106,6 +109,7 @@ describe('BookCoverImagePicker', () => {
         onChange={onChangeMock}
         width={100.0}
         height={100.0}
+        existingImageURL={null}
         showExternalImage={false}
         onShowExternalImageChange={onShowExternalImageChangeMock}
       />
