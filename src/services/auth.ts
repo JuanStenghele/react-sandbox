@@ -9,7 +9,7 @@ const requestedAuthScopes = `${OIDCScopes} ${adminScope}`;
 export const authOIDCConfig = {
   authority: import.meta.env.VITE_OIDC_AUTHORITY,
   client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
-  redirect_uri: window.location.origin,
+  redirect_uri: window.location.origin + import.meta.env.BASE_URL.replace(/\/$/, ''),
   scope: requestedAuthScopes,
   // TODO: Move this in the future to httpOnly cookie
   userStore: new WebStorageStateStore({ store: window.localStorage }),
