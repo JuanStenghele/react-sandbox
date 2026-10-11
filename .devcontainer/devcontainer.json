@@ -4,6 +4,7 @@
 	// Change container's name
 	"runArgs": ["--name", "dev-react-sandbox"],
 	"features": {
-		"ghcr.io/devcontainers-extra/features/opencode:1": {}
+		"ghcr.io/devcontainers-extra/features/opencode:1": {},
+		"ghcr.io/devcontainers/features/terraform:1": {}
 	}
 }

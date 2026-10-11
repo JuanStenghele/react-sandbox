@@ -33,7 +33,7 @@ ReactDOM.createRoot(root).render(
     <Provider>
       <AuthProvider {...authOIDCConfig}>
         <QueryClientProvider client={queryClient}>
-          <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+          <BrowserRouter>
             <SnackbarProvider
               anchorOrigin={{
                 vertical: 'top',
