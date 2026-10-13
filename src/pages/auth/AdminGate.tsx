@@ -1,13 +1,11 @@
 import { Navigate, Outlet } from 'react-router';
-import { ROUTES, adminScope } from '../../constants';
-import { useAuth } from 'react-oidc-context';
+import { ROUTES, adminPermission } from '../../constants';
+import { useHasPermission } from '../../services/auth';
 
 const AdminGate = () => {
-  const auth = useAuth();
+  const isAdmin = useHasPermission(adminPermission);
 
-  const scopes = auth.user?.scope?.split(' ') ?? [];
-
-  if (scopes.includes(adminScope)) {
+  if (isAdmin) {
     return <Outlet />;
   }
 

@@ -62,7 +62,7 @@ describe('BooksPage', () => {
   };
 
   it('displays the title and table with data', async () => {
-    const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+    const adminUser = buildAuthUser({ permissions: ['admin'] });
     mockedUseAuth.mockReturnValue(
       buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
     );
@@ -81,7 +81,7 @@ describe('BooksPage', () => {
 
   describe('new button', () => {
     it('is disabled for non-admin users', () => {
-      const regularUser = buildAuthUser({ scopes: ['openid'] });
+      const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
       );
@@ -93,7 +93,7 @@ describe('BooksPage', () => {
     });
 
     it('redirects to new book page for admin users', async () => {
-      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      const adminUser = buildAuthUser({ permissions: ['admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
       );
@@ -109,7 +109,7 @@ describe('BooksPage', () => {
 
   describe('delete button', () => {
     it('is disabled for non admin users', () => {
-      const regularUser = buildAuthUser({ scopes: ['openid'] });
+      const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
       );
@@ -122,7 +122,7 @@ describe('BooksPage', () => {
     });
 
     it('is disabled when no rows are selected', () => {
-      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      const adminUser = buildAuthUser({ permissions: ['admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
       );
@@ -135,7 +135,7 @@ describe('BooksPage', () => {
     });
 
     it('shows a loading spinner on the Delete button while deleting', async () => {
-      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      const adminUser = buildAuthUser({ permissions: ['admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
       );
@@ -170,7 +170,7 @@ describe('BooksPage', () => {
     });
 
     it('deletes the selected books for admin users', async () => {
-      const adminUser = buildAuthUser({ scopes: ['openid', 'admin'] });
+      const adminUser = buildAuthUser({ permissions: ['admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
       );

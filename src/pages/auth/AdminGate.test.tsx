@@ -16,7 +16,7 @@ describe('AdminGate', () => {
   });
 
   it('displays the outlet when user is admin', () => {
-    const adminUser = buildAuthUser({ scope: 'openid admin' });
+    const adminUser = buildAuthUser({ permissions: ['admin'] });
     mockedUseAuth.mockReturnValue(
       buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
     );
@@ -34,7 +34,7 @@ describe('AdminGate', () => {
   });
 
   it('redirects to unauthorized page if user is not admin', () => {
-    const regularUser = buildAuthUser({ scope: 'openid' });
+    const regularUser = buildAuthUser({ permissions: [] });
     mockedUseAuth.mockReturnValue(
       buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
     );

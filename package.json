@@ -26,6 +26,7 @@
     "date-fns": "^4.4.0",
     "i18next": "^26.4.2",
     "jotai": "^2.20.1",
+    "jwt-decode": "^4.0.0",
     "notistack": "^3.0.2",
     "oidc-client-ts": "^3.5.0",
     "react": "^19.2.7",

@@ -33,18 +33,33 @@ export const buildAuthProps = (overrides: Partial<AuthContextProps> = {}): AuthC
   ...overrides
 });
 
-export const buildAuthUser = (overrides: Partial<User> = {}): User => ({
-  access_token: 'fake-token',
-  id_token: 'fake-id-token',
-  refresh_token: 'fake-refresh-token',
-  token_type: 'Bearer',
-  scope: 'openid',
-  profile: { sub: 'user-123' },
-  expires_at: Math.floor(Date.now() / 1000) + 3600,
-  expired: false,
-  scopes: ['openid'],
-  session_state: null,
-  state: undefined,
-  toStorageString: () => '',
-  ...overrides,
-}) as User;
+const base64UrlEncode = (input: string) =>
+  btoa(input).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+export const buildAccessToken = (permissions: string[] = []) => {
+  const header = base64UrlEncode(JSON.stringify({ alg: 'none', typ: 'JWT' }));
+  const payload = base64UrlEncode(JSON.stringify({ permissions }));
+  return `${header}.${payload}.signature`;
+};
+
+type BuildAuthUserOptions = Partial<User> & { permissions?: string[] };
+
+export const buildAuthUser = (overrides: BuildAuthUserOptions = {}): User => {
+  const { permissions = [], ...rest } = overrides;
+
+  return {
+    access_token: buildAccessToken(permissions),
+    id_token: 'fake-id-token',
+    refresh_token: 'fake-refresh-token',
+    token_type: 'Bearer',
+    scope: 'openid',
+    profile: { sub: 'user-123' },
+    expires_at: Math.floor(Date.now() / 1000) + 3600,
+    expired: false,
+    scopes: ['openid'],
+    session_state: null,
+    state: undefined,
+    toStorageString: () => '',
+    ...rest,
+  } as User;
+};

@@ -3,7 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useAuth } from 'react-oidc-context';
 import { buildAuthProps, buildAuthUser } from '../test/utils';
 import { useHasPermission } from './auth';
-import { adminScope } from '../constants';
+import { adminPermission } from '../constants';
 
 vi.mock('react-oidc-context');
 
@@ -14,24 +14,24 @@ describe('useHasPermission', () => {
     vi.clearAllMocks();
   });
 
-  it('returns true when the user has the scope', () => {
-    const adminUser = buildAuthUser({ scopes: ['openid', adminScope] });
+  it('returns true when the user has the permission', () => {
+    const adminUser = buildAuthUser({ permissions: [adminPermission] });
     mockedUseAuth.mockReturnValue(
       buildAuthProps({ isAuthenticated: true, user: adminUser })
     );
 
-    const { result } = renderHook(() => useHasPermission(adminScope));
+    const { result } = renderHook(() => useHasPermission(adminPermission));
 
     expect(result.current).toBe(true);
   });
 
-  it('returns false when the user does not have the scope', () => {
-    const regularUser = buildAuthUser({ scopes: ['openid'] });
+  it('returns false when the user does not have the permission', () => {
+    const regularUser = buildAuthUser({ permissions: [] });
     mockedUseAuth.mockReturnValue(
       buildAuthProps({ isAuthenticated: true, user: regularUser })
     );
 
-    const { result } = renderHook(() => useHasPermission(adminScope));
+    const { result } = renderHook(() => useHasPermission(adminPermission));
 
     expect(result.current).toBe(false);
   });
@@ -41,7 +41,7 @@ describe('useHasPermission', () => {
       buildAuthProps({ isAuthenticated: false, user: undefined })
     );
 
-    const { result } = renderHook(() => useHasPermission(adminScope));
+    const { result } = renderHook(() => useHasPermission(adminPermission));
 
     expect(result.current).toBe(false);
   });

@@ -3,7 +3,7 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BooksTable from './table/Table';
 import { useNavigate } from 'react-router';
-import { adminScope, ROUTES } from '../../constants';
+import { adminPermission, ROUTES } from '../../constants';
 import { useHasPermission } from '../../services/auth';
 import { useDeleteBooks } from '../../services/books';
 import { useAtom } from 'jotai';
@@ -13,7 +13,7 @@ import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const BooksPage = () => {
-  const isUserAdmin = useHasPermission(adminScope);
+  const isUserAdmin = useHasPermission(adminPermission);
   const navigate = useNavigate();
   const [tableState, setTableState] = useAtom(booksTableState);
   const { t } = useTranslation();

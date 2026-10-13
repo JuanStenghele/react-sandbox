@@ -12,7 +12,7 @@ export const ROUTES = {
   editBook: '/books/:id'
 } as const;
 
-export const adminScope = 'admin';
+export const adminPermission = 'admin';
 
 export const english: Language = {
   key: 'en',

@@ -1,16 +1,15 @@
 import { UserManager } from 'oidc-client-ts';
 import { WebStorageStateStore } from 'oidc-client-ts';
-import { adminScope } from '../constants';
+import { jwtDecode } from 'jwt-decode';
 import { useAuth } from 'react-oidc-context';
 
-const OIDCScopes = 'openid profile email offline_access';
-const requestedAuthScopes = `${OIDCScopes} ${adminScope}`;
+const OIDCScopes = 'openid profile email';
 
 export const authOIDCConfig = {
   authority: import.meta.env.VITE_OIDC_AUTHORITY,
   client_id: import.meta.env.VITE_OIDC_CLIENT_ID,
   redirect_uri: window.location.origin,
-  scope: requestedAuthScopes,
+  scope: OIDCScopes,
   // TODO: Move this in the future to httpOnly cookie
   userStore: new WebStorageStateStore({ store: window.localStorage }),
   onSigninCallback: () => {
@@ -20,8 +19,21 @@ export const authOIDCConfig = {
 
 export const userManager = new UserManager(authOIDCConfig);
 
-export const useHasPermission = (scope: string) => {
+interface AccessTokenPayload {
+  permissions?: string[];
+}
+
+export const useHasPermission = (permission: string) => {
   const auth = useAuth();
-  const scopes = auth.user?.scopes ?? [];
-  return scopes.includes(scope);
+  const accessToken = auth.user?.access_token;
+  if (!accessToken) {
+    return false;
+  }
+  try {
+    const payload = jwtDecode<AccessTokenPayload>(accessToken);
+    const permissions = payload.permissions ?? [];
+    return permissions.includes(permission);
+  } catch {
+    return false;
+  }
 };

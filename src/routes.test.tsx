@@ -122,7 +122,7 @@ describe('AppRoutes', () => {
     });
 
     it('renders new author page for an admin user', async () => {
-      const adminUser = buildAuthUser({ scope: 'openid admin' });
+      const adminUser = buildAuthUser({ permissions: ['admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
       );
@@ -141,7 +141,7 @@ describe('AppRoutes', () => {
     });
 
     it('renders edit author page for an admin user', async () => {
-      const adminUser = buildAuthUser({ scope: 'openid admin' });
+      const adminUser = buildAuthUser({ permissions: ['admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
       );
@@ -162,7 +162,7 @@ describe('AppRoutes', () => {
     });
 
     it('redirects to unauthorized page for a non-admin user', async () => {
-      const regularUser = buildAuthUser({ scope: 'openid' });
+      const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
       );
@@ -181,7 +181,7 @@ describe('AppRoutes', () => {
     });
 
     it('redirects a non-admin user to the unauthorized page for the edit author route', async () => {
-      const regularUser = buildAuthUser({ scope: 'openid' });
+      const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
       );
@@ -213,7 +213,7 @@ describe('AppRoutes', () => {
     };
 
     it('renders new book page for an admin user', async () => {
-      const adminUser = buildAuthUser({ scope: 'openid admin' });
+      const adminUser = buildAuthUser({ permissions: ['admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
       );
@@ -232,7 +232,7 @@ describe('AppRoutes', () => {
     });
 
     it('renders edit book page for an admin user', async () => {
-      const adminUser = buildAuthUser({ scope: 'openid admin' });
+      const adminUser = buildAuthUser({ permissions: ['admin'] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: adminUser })
       );
@@ -252,7 +252,7 @@ describe('AppRoutes', () => {
     });
 
     it('redirects a non-admin user to the unauthorized page for the new book route', async () => {
-      const regularUser = buildAuthUser({ scope: 'openid' });
+      const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
       );
@@ -271,7 +271,7 @@ describe('AppRoutes', () => {
     });
 
     it('redirects a non-admin user to the unauthorized page for the edit book route', async () => {
-      const regularUser = buildAuthUser({ scope: 'openid' });
+      const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
       );
