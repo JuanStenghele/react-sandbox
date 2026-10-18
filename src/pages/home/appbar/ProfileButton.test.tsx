@@ -49,17 +49,17 @@ describe('ProfileButton', () => {
     expect(screen.getByText('Español')).toBeInTheDocument();
   });
 
-  it('calls removeUser when clicking Sign Out', () => {
-    const removeUser = vi.fn();
+  it('calls signoutRedirect when clicking Sign Out', () => {
+    const signoutRedirect = vi.fn();
     mockedUseAuth.mockReturnValue(
-      buildAuthProps({ isAuthenticated: true, removeUser })
+      buildAuthProps({ isAuthenticated: true, signoutRedirect })
     );
     render(<ProfileButton />);
 
     fireEvent.click(screen.getByLabelText('profile'));
     fireEvent.click(screen.getByText('Sign Out'));
 
-    expect(removeUser).toHaveBeenCalled();
+    expect(signoutRedirect).toHaveBeenCalled();
   });
 
   it('switches the language and updates the translated text', () => {

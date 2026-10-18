@@ -34,7 +34,7 @@ const ProfileButton = () => {
   };
 
   const onSignOutButtonClick = () => {
-    auth.removeUser();
+    auth.signoutRedirect();
   };
 
   return (
