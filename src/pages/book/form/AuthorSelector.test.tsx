@@ -60,6 +60,14 @@ describe('AuthorSelector', () => {
     });
   });
 
+  it('disables the combobox when the disabled prop is set', () => {
+    const wrapper = buildWrapper();
+
+    render(<AuthorSelector width={176.0} disabled />, { wrapper });
+
+    expect(screen.getByRole('combobox')).toBeDisabled();
+  });
+
   it('shows a loading indicator while authors are being fetched', async () => {
     let resolveDeferred!: (value: [number, GetAuthorsResponse]) => void;
     const deferredResponse = new Promise<[number, GetAuthorsResponse]>((resolve) => {

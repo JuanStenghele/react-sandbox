@@ -11,6 +11,7 @@ import { lightTheme } from '../../../constants';
 interface BookCoverImagePickerProps {
   width: number;
   height: number;
+  disabled?: boolean;
   existingImageURL: string | null;
   showExternalImage: boolean;
   onShowExternalImageChange: (show: boolean) => void;
@@ -60,7 +61,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
 
   return (
     <Box
-      onClick={() => inputRef.current?.click()}
+      onClick={() => !props.disabled && inputRef.current?.click()}
       sx={{
         width: props.width,
         height: props.height,
@@ -68,9 +69,9 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
         borderColor: isLightMode ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)',
         borderRadius: 1.0,
         '&:hover': {
-          borderColor: 'text.primary'
+          borderColor: props.disabled ? undefined : 'text.primary'
         },
-        cursor: 'pointer'
+        cursor: props.disabled ? 'default' : 'pointer'
       }}
     >
       <input
@@ -79,6 +80,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
         type='file'
         accept='image/jpeg,image/png,image/webp'
         hidden
+        disabled={props.disabled}
         onChange={(event: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
           const file = event.target.files?.[0];
           if (!file) return;
@@ -117,28 +119,30 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
                 zIndex: 1
               }}
             />
-            <IconButton
-              size='small'
-              sx={{
-                position: 'absolute',
-                top: 10.0,
-                right: 10.0,
-                zIndex: 2,
-                backgroundColor: isLightMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.2)',
-                '&:hover': {
-                  backgroundColor: isLightMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.3)'
-                }
-              }}
-              onClick={onDeleteCoverImageClicked}
-            >
-              <ClearRoundedIcon
-                data-testid='delete-cover-image'
-                sx={{ 
-                  color: isLightMode ? 'common.white' : 'common.black', 
-                  fontSize: 16.0 
+            {!props.disabled && (
+              <IconButton
+                size='small'
+                sx={{
+                  position: 'absolute',
+                  top: 10.0,
+                  right: 10.0,
+                  zIndex: 2,
+                  backgroundColor: isLightMode ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.2)',
+                  '&:hover': {
+                    backgroundColor: isLightMode ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.3)'
+                  }
                 }}
-              />
-            </IconButton>
+                onClick={onDeleteCoverImageClicked}
+              >
+                <ClearRoundedIcon
+                  data-testid='delete-cover-image'
+                  sx={{ 
+                    color: isLightMode ? 'common.white' : 'common.black', 
+                    fontSize: 16.0 
+                  }}
+                />
+              </IconButton>
+            )}
           </>
         ) : (
           <>
@@ -163,7 +167,7 @@ const BookCoverImagePicker = (props: BookCoverImagePickerProps) => {
               </Typography>
             </Box>
             {
-              props.existingImageURL && 
+              props.existingImageURL && !props.disabled && 
                 <IconButton
                   size='small'
                   sx={{

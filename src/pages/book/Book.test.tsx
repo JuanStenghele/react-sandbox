@@ -1,17 +1,23 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import type { InitialEntry } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
+import { useAuth } from 'react-oidc-context';
 import backend from '../../services/backend';
 import type { Book } from '../../types/book';
 import type { RawBook } from '../../services/books';
+import { buildAuthProps, buildAuthUser } from '../../test/utils';
 import BookPage from './Book';
+
+vi.mock('react-oidc-context');
 
 describe('BookPage', () => {
   const mock = new MockAdapter(backend);
+
+  const mockedUseAuth = vi.mocked(useAuth);
 
   const sampleRawBook: RawBook = {
     id: '60fd6e8e-9e00-4e84-ad28-8d2fdd3d0ddd',
@@ -35,8 +41,19 @@ describe('BookPage', () => {
     created_at: new Date('2026-06-25T03:28:59.552152'),
   };
 
+  beforeEach(() => {
+    mockedUseAuth.mockReturnValue(
+      buildAuthProps({
+        isAuthenticated: true,
+        isLoading: false,
+        user: buildAuthUser({ permissions: ['admin'] })
+      })
+    );
+  });
+
   afterEach(() => {
     mock.reset();
+    vi.clearAllMocks();
   });
 
   const buildWrapper = (initialEntries?: InitialEntry[]) => {
@@ -119,5 +136,34 @@ describe('BookPage', () => {
     expect(
       mock.history.get.filter((request) => request.url?.includes(`/v1/books/${sampleBook.id}`))
     ).toHaveLength(0);
+  });
+
+  describe('view mode', () => {
+    beforeEach(() => {
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({
+          isAuthenticated: true,
+          isLoading: false,
+          user: buildAuthUser({ permissions: [] })
+        })
+      );
+    });
+
+    it('shows the book details title for a non-admin user', async () => {
+      mock.onGet(`/v1/books/${sampleBook.id}`).reply(200, sampleRawBook);
+      const wrapper = buildWrapper([`/books/${sampleBook.id}`]);
+
+      render(
+        <Routes>
+          <Route path='/books/:id' element={<BookPage />} />
+        </Routes>,
+        { wrapper }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Book Details')).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Edit Book')).not.toBeInTheDocument();
+    });
   });
 });

@@ -21,10 +21,10 @@ const AppRoutes = () => {
           <Route path={ROUTES.books} element={<BooksPage />} />
           <Route path={ROUTES.authors} element={<AuthorsPage />} />
           <Route path={ROUTES.authorDetails} element={<AuthorPage />} />
+          <Route path={ROUTES.bookDetails} element={<BookPage />} />
           <Route element={<AdminGate />}>
             <Route path={ROUTES.newAuthor} element={<AuthorPage />} />
             <Route path={ROUTES.newBook} element={<BookPage />} />
-            <Route path={ROUTES.editBook} element={<BookPage />} />
           </Route>
         </Route>
       </Route>

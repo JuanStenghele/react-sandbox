@@ -188,4 +188,80 @@ describe('BookCoverImagePicker', () => {
     expect(screen.getByAltText('Cover Image')).toBeVisible();
     expect(screen.queryByTestId('reset-cover-image')).not.toBeInTheDocument();
   });
+
+  describe('disabled', () => {
+    it('disables the file input', () => {
+      render(
+        <BookCoverImagePicker
+          onChange={onChangeMock}
+          width={100.0}
+          height={100.0}
+          disabled
+          existingImageURL={null}
+          showExternalImage={false}
+          onShowExternalImageChange={onShowExternalImageChangeMock}
+        />
+      );
+
+      expect(screen.getByLabelText('Cover image input')).toBeDisabled();
+    });
+
+    it('hides the delete button when an existing image is shown', () => {
+      render(
+        <BookCoverImagePicker
+          onChange={onChangeMock}
+          width={100.0}
+          height={100.0}
+          disabled
+          existingImageURL="https://example.com/cover.jpg"
+          showExternalImage={true}
+          onShowExternalImageChange={onShowExternalImageChangeMock}
+        />
+      );
+
+      expect(screen.getByAltText('Cover Image')).toBeVisible();
+      expect(screen.queryByTestId('delete-cover-image')).not.toBeInTheDocument();
+    });
+
+    it('hides the reset button when the cover image is removed', async () => {
+      const Wrapper = () => (
+        <BookCoverImagePicker
+          onChange={onChangeMock}
+          width={100.0}
+          height={100.0}
+          disabled
+          existingImageURL="https://example.com/cover.jpg"
+          showExternalImage={false}
+          onShowExternalImageChange={onShowExternalImageChangeMock}
+        />
+      );
+      render(<Wrapper />);
+
+      expect(screen.queryByTestId('reset-cover-image')).not.toBeInTheDocument();
+    });
+
+    it('does not trigger the file input when clicked', () => {
+      render(
+        <BookCoverImagePicker
+          onChange={onChangeMock}
+          width={100.0}
+          height={100.0}
+          disabled
+          existingImageURL={null}
+          showExternalImage={false}
+          onShowExternalImageChange={onShowExternalImageChangeMock}
+        />
+      );
+
+      const input = screen.getByLabelText('Cover image input') as HTMLInputElement;
+      const clickSpy = vi.spyOn(input, 'click');
+
+      const container = input.parentElement?.parentElement;
+      if (container) {
+        container.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      }
+
+      expect(clickSpy).not.toHaveBeenCalled();
+    });
+  });
 });

@@ -4,7 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useState } from 'react';
 import { useForm, Controller, type SubmitHandler, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
-import { ROUTES } from '../../../constants';
+import { adminPermission, ROUTES } from '../../../constants';
 import type { Book } from '../../../types/book';
 import AuthorSelector from './AuthorSelector';
 import BookCoverImagePicker from './CoverImagePicker';
@@ -13,6 +13,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useDeleteBookCover, usePatchBook, usePostBook } from '../../../services/books';
 import { useTranslation } from 'react-i18next';
+import { useHasPermission } from '../../../services/auth';
 
 export interface BookPageProps {
   book?: Book;
@@ -27,8 +28,11 @@ interface BookFormInput {
   coverImage: File | null;
 }
 
+type BookFormMode = 'view' | 'edit' | 'new';
+
 const BookForm = (props: BookPageProps) => {
-  const isEditMode = !!props.book;
+  const isUserAdmin = useHasPermission(adminPermission);
+  const mode: BookFormMode = !isUserAdmin ? 'view' : props.book ? 'edit' : 'new';
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [showExternalImage, setShowExternalImage] = useState(props.book?.cover_image_url != null);
@@ -70,7 +74,7 @@ const BookForm = (props: BookPageProps) => {
   };
 
   const onSubmit: SubmitHandler<BookFormInput> = async (data: BookFormInput) => {
-    if (isEditMode) {
+    if (mode === 'edit') {
       if (isDirty) {
         await patchMutate({ 
           id: props.book!.id, 
@@ -111,6 +115,7 @@ const BookForm = (props: BookPageProps) => {
           <DatePicker
             {...field}
             disableFuture
+            disabled={mode === 'view'}
             label={t('common.publicationDate')}
             minDate={minDate}
             format='dd/MM/yyyy'
@@ -144,6 +149,7 @@ const BookForm = (props: BookPageProps) => {
                 {...field}
                 width={300.0}
                 height={320.0}
+                disabled={mode === 'view'}
                 existingImageURL={props.book?.cover_image_url ?? null}
                 showExternalImage={showExternalImage}
                 onShowExternalImageChange={setShowExternalImage}
@@ -152,7 +158,7 @@ const BookForm = (props: BookPageProps) => {
           />
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1 }}>
             {
-              isEditMode && (
+              mode !== 'new' && (
                 <TextField
                   label={t('common.id')}
                   sx={{
@@ -172,6 +178,7 @@ const BookForm = (props: BookPageProps) => {
                 <TextField
                   {...field}
                   required
+                  disabled={mode === 'view'}
                   label={t('common.title')}
                   slotProps={{
                     htmlInput: {
@@ -191,6 +198,7 @@ const BookForm = (props: BookPageProps) => {
               render={({ field }) => (
                 <TextField
                   {...field}
+                  disabled={mode === 'view'}
                   label={t('common.isbn')}
                   slotProps={{
                     htmlInput: {
@@ -212,25 +220,27 @@ const BookForm = (props: BookPageProps) => {
                 <AuthorSelector
                   {...field}
                   width={726.0}
+                  disabled={mode === 'view'}
                 />
               )}
             />
             {
-              !isEditMode && publicationDatePickerComponent()
+              mode === 'new' && publicationDatePickerComponent()
             }
           </Box>
         </Box>
         {
-          isEditMode && publicationDatePickerComponent()
+          mode !== 'new' && publicationDatePickerComponent()
         }
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1 }}>
           <Controller
             name='description'
             control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label={t('common.description')}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  disabled={mode === 'view'}
+                  label={t('common.description')}
                 multiline
                 helperText={`${field.value?.length ?? 0}/500`}
                 slotProps={{
@@ -263,19 +273,23 @@ const BookForm = (props: BookPageProps) => {
         >
           {t('common.cancel')}
         </Button>
-        <Button
-          type='submit'
-          variant='contained'
-          size='large'
-          startIcon={<SaveIcon />}
-          sx={{ width: 148.0 }}
-          disabled={!isValid || !wereChangesMade()}
-          loadingPosition='start'
-          loading={isPending}
-          disableElevation
-        >
-          {t('common.save')}
-        </Button>
+        {
+          mode !== 'view' && (
+            <Button
+              type='submit'
+              variant='contained'
+              size='large'
+              startIcon={<SaveIcon />}
+              sx={{ width: 148.0 }}
+              disabled={!isValid || !wereChangesMade()}
+              loadingPosition='start'
+              loading={isPending}
+              disableElevation
+            >
+              {t('common.save')}
+            </Button>
+          )
+        }
       </Box>
     </Box>
   );

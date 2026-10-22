@@ -5,12 +5,16 @@ import type { Book } from '../../types/book';
 import { useGetBook } from '../../services/books';
 import BookForm from './form/Form';
 import { useTranslation } from 'react-i18next';
+import { useHasPermission } from '../../services/auth';
+import { adminPermission } from '../../constants';
 
 interface BookLocationState {
   book?: Book;
 }
 
 const BookPage = () => {
+  const isUserAdmin = useHasPermission(adminPermission);
+
   const { id } = useParams();
   const location = useLocation();
   const { t } = useTranslation();
@@ -24,10 +28,17 @@ const BookPage = () => {
     return <LoadingPage />;
   }
 
+  const getTitle = () => {
+    if (!isUserAdmin) {
+      return t('bookForm.viewTitle');
+    }
+    return book ? t('bookForm.editTitle') : t('bookForm.newTitle');
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Typography variant='h4' gutterBottom>
-        {book ? t('bookForm.editTitle') : t('bookForm.newTitle')}
+        {getTitle()}
       </Typography>
       <Box sx={{ flexGrow: 1, minHeight: 0 }}>
         <BookForm book={book} />

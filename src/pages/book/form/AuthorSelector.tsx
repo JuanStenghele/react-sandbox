@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 interface AuthorSelectorProps {
   width: number;
+  disabled?: boolean;
   value?: string;
   onChange?: (authorId: string) => void;
 }
@@ -51,6 +52,7 @@ const AuthorSelector = (props: AuthorSelectorProps) => {
       options={options}
       value={selectedAuthor ?? null}
       onChange={(_, author) => props.onChange?.(author?.id ?? '')}
+      disabled={props.disabled}
       sx={{ width: props.width }}
       loading={isLoading}
       loadingText={(

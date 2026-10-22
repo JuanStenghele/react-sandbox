@@ -9,7 +9,7 @@ export const ROUTES = {
   newAuthor: '/authors/new',
   authorDetails: '/authors/:id',
   newBook: '/books/new',
-  editBook: '/books/:id'
+  bookDetails: '/books/:id'
 } as const;
 
 export const adminPermission = 'admin';

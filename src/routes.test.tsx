@@ -272,11 +272,12 @@ describe('AppRoutes', () => {
       });
     });
 
-    it('redirects a non-admin user to the unauthorized page for the edit book route', async () => {
+    it('renders the book details page for a non-admin user', async () => {
       const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
       );
+      mock.onGet(`/v1/books/${sampleRawBook.id}`).reply(200, sampleRawBook);
       const wrapper = buildWrapper();
 
       render(
@@ -287,7 +288,7 @@ describe('AppRoutes', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Unauthorized Access')).toBeInTheDocument();
+        expect(screen.getByText('Book Details')).toBeInTheDocument();
       });
     });
   });

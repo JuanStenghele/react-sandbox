@@ -1,23 +1,39 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import BookForm from './Form';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { MemoryRouter } from 'react-router';
-import { LocationDisplay } from '../../../test/utils';
+import { LocationDisplay, buildAuthProps, buildAuthUser } from '../../../test/utils';
 import userEvent from '@testing-library/user-event';
 import MockAdapter from 'axios-mock-adapter';
+import { useAuth } from 'react-oidc-context';
 import backend from '../../../services/backend';
 import type { PostBookResponse } from '../../../services/books';
 import type { GetAuthorsResponse } from '../../../services/authors';
 import type { Book } from '../../../types/book';
 import type { Author } from '../../../types/author';
 
+vi.mock('react-oidc-context');
+
 describe('BookForm', () => {
   const mock = new MockAdapter(backend);
 
+  const mockedUseAuth = vi.mocked(useAuth);
+
+  beforeEach(() => {
+    mockedUseAuth.mockReturnValue(
+      buildAuthProps({
+        isAuthenticated: true,
+        isLoading: false,
+        user: buildAuthUser({ permissions: ['admin'] })
+      })
+    );
+  });
+
   afterEach(() => {
     mock.reset();
+    vi.clearAllMocks();
   });
 
   const buildBookFormWrapper = () => {
@@ -345,6 +361,50 @@ describe('BookForm', () => {
       expect(mock.history.patch.length).toBe(1);
       expect(mock.history.delete.length).toBe(0);
       expect(screen.getByTestId('location')).toHaveTextContent('/books');
+    });
+  });
+
+  describe('view mode', () => {
+    beforeEach(() => {
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({
+          isAuthenticated: true,
+          isLoading: false,
+          user: buildAuthUser({ permissions: [] })
+        })
+      );
+    });
+
+    it('disables the fields and hides the Save button for a non-admin user', () => {
+      const wrapper = buildBookFormWrapper();
+
+      render(<BookForm book={sampleBook} />, { wrapper });
+
+      expect(screen.getByDisplayValue(sampleBook.title)).toBeDisabled();
+      expect(screen.getByDisplayValue(sampleBook.isbn!)).toBeDisabled();
+      expect(screen.getByDisplayValue(sampleBook.description!)).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    });
+
+    it('shows the disabled ID field in view mode', () => {
+      const wrapper = buildBookFormWrapper();
+
+      render(<BookForm book={sampleBook} />, { wrapper });
+
+      expect(screen.getByLabelText('ID')).toBeInTheDocument();
+      expect(screen.getByLabelText('ID')).toBeDisabled();
+    });
+
+    it('does not submit any request in view mode', () => {
+      const wrapper = buildBookFormWrapper();
+
+      render(<BookForm book={sampleBook} />, { wrapper });
+
+      expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+      expect(mock.history.post).toHaveLength(0);
+      expect(mock.history.patch).toHaveLength(0);
+      expect(mock.history.delete).toHaveLength(0);
     });
   });
 });

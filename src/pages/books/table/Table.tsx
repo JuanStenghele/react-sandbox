@@ -53,7 +53,7 @@ const BooksTable = () => {
   ];
 
   const onRowClick = (params: GridRowParams) => {
-    navigate(generatePath(ROUTES.editBook, { id: params.row.id }), { state: { book: params.row } });
+    navigate(generatePath(ROUTES.bookDetails, { id: params.row.id }), { state: { book: params.row } });
   };
 
   const onRowSelected = (newSelectionModel: GridRowSelectionModel) => {

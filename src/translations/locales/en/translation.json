@@ -61,6 +61,7 @@
   "bookForm": {
     "newTitle": "New Book",
     "editTitle": "Edit Book",
+    "viewTitle": "Book Details",
     "authorLabel": "Author *",
     "coverImage": {
       "select": "Select a cover image...",
