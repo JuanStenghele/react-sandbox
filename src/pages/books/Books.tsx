@@ -24,7 +24,7 @@ const BooksPage = () => {
     navigate(ROUTES.newBook);
   };
 
-  const isDeleteButtonDisabled = !isUserAdmin || tableState.selectedRowsIds.size === 0;
+  const isDeleteButtonDisabled = tableState.selectedRowsIds.size === 0;
 
   const onDeleteButtonClick = () => {
     mutate({ ids: [...tableState.selectedRowsIds] });
@@ -44,31 +44,36 @@ const BooksPage = () => {
         {t('books.title')}
       </Typography>
       <Box sx={{ mb: 2.0, display: 'flex', gap: 1.0 }}>
-        <Button
-          variant='contained'
-          size='large'
-          onClick={onNewButtonClick}
-          startIcon={<AddRoundedIcon />}
-          sx={{ width: 124.0 }}
-          disabled={!isUserAdmin}
-          disableElevation
-        >
-          {t('common.new')}
-        </Button>
-        <Button
-          variant='contained'
-          color='error'
-          size='large'
-          onClick={onDeleteButtonClick}
-          startIcon={<DeleteIcon />}
-          sx={{ width: 124.0 }}
-          disabled={isDeleteButtonDisabled}
-          loadingPosition='start'
-          loading={isDeletePending}
-          disableElevation
-        >
-          {t('common.delete')}
-        </Button>
+        {
+          isUserAdmin && (
+            <>
+              <Button
+                variant='contained'
+                size='large'
+                onClick={onNewButtonClick}
+                startIcon={<AddRoundedIcon />}
+                sx={{ width: 124.0 }}
+                disableElevation
+              >
+                {t('common.new')}
+              </Button>
+              <Button
+                variant='contained'
+                color='error'
+                size='large'
+                onClick={onDeleteButtonClick}
+                startIcon={<DeleteIcon />}
+                sx={{ width: 124.0 }}
+                disabled={isDeleteButtonDisabled}
+                loadingPosition='start'
+                loading={isDeletePending}
+                disableElevation
+              >
+                {t('common.delete')}
+              </Button>
+            </>
+          )
+        }
         <TextField
           value={tableState.searchTerm}
           placeholder={t('common.search')}
