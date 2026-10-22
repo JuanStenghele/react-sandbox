@@ -75,7 +75,7 @@ describe('AuthorsPage', () => {
   });
 
   describe('new button', () => {
-    it('is disabled for non-admin users', () => {
+    it('is not rendered for non-admin users', () => {
       const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
@@ -84,7 +84,7 @@ describe('AuthorsPage', () => {
 
       render(<AuthorsPage />, { wrapper });
 
-      expect(screen.getByRole('button', { name: 'New' })).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'New' })).not.toBeInTheDocument();
     });
 
     it('redirects to new author page for admin users', async () => {
@@ -103,7 +103,7 @@ describe('AuthorsPage', () => {
   });
 
   describe('delete button', () => {
-    it('is disabled for non admin users', () => {
+    it('is not rendered for non admin users', () => {
       const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
@@ -113,7 +113,7 @@ describe('AuthorsPage', () => {
 
       render(<AuthorsPage />, { wrapper });
 
-      expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
     });
 
     it('is disabled when no rows are selected', () => {
