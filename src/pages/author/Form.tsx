@@ -3,10 +3,11 @@ import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import { useForm, Controller, type SubmitHandler } from 'react-hook-form';
 import { useNavigate } from 'react-router';
-import { ROUTES } from '../../constants';
+import { adminPermission, ROUTES } from '../../constants';
 import { usePatchAuthor, usePostAuthor } from '../../services/authors';
 import type { Author } from '../../types/author';
 import { useTranslation } from 'react-i18next';
+import { useHasPermission } from '../../services/auth';
 
 export interface AuthorPageProps {
   author?: Author;
@@ -16,8 +17,11 @@ interface AuthorFormInput {
   name: string;
 }
 
+type AuthorFormMode = 'view' | 'edit' | 'new';
+
 const AuthorForm = (props: AuthorPageProps) => {
-  const isEditMode = !!props.author;
+  const isUserAdmin = useHasPermission(adminPermission);
+  const mode: AuthorFormMode = !isUserAdmin ? 'view' : props.author ? 'edit' : 'new';
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { mutate: postMutate, isPending: isPostPending } = usePostAuthor();
@@ -33,7 +37,7 @@ const AuthorForm = (props: AuthorPageProps) => {
   };
 
   const onSubmit: SubmitHandler<AuthorFormInput> = (data: AuthorFormInput) => {
-    if (isEditMode) {
+    if (mode === 'edit') {
       patchMutate({ id: props.author!.id, data }, {
         onSuccess: () => {
           navigateToAuthorsPage();
@@ -56,7 +60,7 @@ const AuthorForm = (props: AuthorPageProps) => {
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4.0, flexGrow: 1 }}>
         {
-          isEditMode && (
+          mode !== 'new' && (
             <TextField
               label={t('common.id')}
               sx={{
@@ -76,6 +80,7 @@ const AuthorForm = (props: AuthorPageProps) => {
             <TextField
               {...field}
               required
+              disabled={mode === 'view'}
               label={t('common.name')}
               slotProps={{
                 htmlInput: {
@@ -101,19 +106,23 @@ const AuthorForm = (props: AuthorPageProps) => {
         >
           {t('common.cancel')}
         </Button>
-        <Button
-          type='submit'
-          variant='contained'
-          size='large'
-          startIcon={<SaveIcon />}
-          sx={{ width: 148.0 }}
-          disabled={!isValid || !isDirty}
-          loadingPosition='start'
-          loading={isPending}
-          disableElevation
-        >
-          {t('common.save')}
-        </Button>
+        {
+          mode !== 'view' && (
+            <Button
+              type='submit'
+              variant='contained'
+              size='large'
+              startIcon={<SaveIcon />}
+              sx={{ width: 148.0 }}
+              disabled={!isValid || !isDirty}
+              loadingPosition='start'
+              loading={isPending}
+              disableElevation
+            >
+              {t('common.save')}
+            </Button>
+          )
+        }
       </Box>
     </Box>
   );

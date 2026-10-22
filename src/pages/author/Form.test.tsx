@@ -1,18 +1,23 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import MockAdapter from 'axios-mock-adapter';
+import { useAuth } from 'react-oidc-context';
 import backend from '../../services/backend';
 import type { PostAuthorResponse } from '../../services/authors';
 import type { Author } from '../../types/author';
-import { LocationDisplay } from '../../test/utils';
+import { LocationDisplay, buildAuthProps, buildAuthUser } from '../../test/utils';
 import AuthorForm from './Form';
+
+vi.mock('react-oidc-context');
 
 describe('AuthorForm', () => {
   const mock = new MockAdapter(backend);
+
+  const mockedUseAuth = vi.mocked(useAuth);
 
   const sampleResponse: PostAuthorResponse = {
     id: 'a6f682de-5fd4-442e-a237-71b30281a2d6',
@@ -24,8 +29,19 @@ describe('AuthorForm', () => {
     name: 'Jane Austen'
   };
 
+  beforeEach(() => {
+    mockedUseAuth.mockReturnValue(
+      buildAuthProps({
+        isAuthenticated: true,
+        isLoading: false,
+        user: buildAuthUser({ permissions: ['admin'] })
+      })
+    );
+  });
+
   afterEach(() => {
     mock.reset();
+    vi.clearAllMocks();
   });
 
   const buildWrapper = () => {
@@ -176,6 +192,47 @@ describe('AuthorForm', () => {
       expect(mock.history.patch[0].url).toContain(sampleAuthor.id);
       expect(JSON.parse(mock.history.patch[0].data)).toEqual({ name: 'Jane Austen Updated' });
       expect(screen.getByTestId('location')).toHaveTextContent('/authors');
+    });
+  });
+
+  describe('view mode', () => {
+    beforeEach(() => {
+      mockedUseAuth.mockReturnValue(
+        buildAuthProps({
+          isAuthenticated: true,
+          isLoading: false,
+          user: buildAuthUser({ permissions: [] })
+        })
+      );
+    });
+
+    it('disables the name field and hides the Save button for a non-admin user', () => {
+      const wrapper = buildWrapper();
+
+      render(<AuthorForm author={sampleAuthor} />, { wrapper });
+
+      expect(screen.getByDisplayValue(sampleAuthor.name)).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    });
+
+    it('shows the ID field in view mode', () => {
+      const wrapper = buildWrapper();
+
+      render(<AuthorForm author={sampleAuthor} />, { wrapper });
+
+      expect(screen.getByLabelText('ID')).toBeInTheDocument();
+      expect(screen.getByLabelText('ID')).toBeDisabled();
+    });
+
+    it('does not submit any request in view mode', async () => {
+      const wrapper = buildWrapper();
+
+      render(<AuthorForm author={sampleAuthor} />, { wrapper });
+
+      expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+      expect(mock.history.post).toHaveLength(0);
+      expect(mock.history.patch).toHaveLength(0);
     });
   });
 });

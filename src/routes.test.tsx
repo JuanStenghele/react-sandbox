@@ -180,22 +180,24 @@ describe('AppRoutes', () => {
       });
     });
 
-    it('redirects a non-admin user to the unauthorized page for the edit author route', async () => {
+    it('renders the author details page for a non-admin user', async () => {
       const regularUser = buildAuthUser({ permissions: [] });
       mockedUseAuth.mockReturnValue(
         buildAuthProps({ isAuthenticated: true, isLoading: false, user: regularUser })
       );
+      const author = sampleResponse.authors[0];
+      mock.onGet(`/v1/authors/${author.id}`).reply(200, author);
       const wrapper = buildWrapper();
 
       render(
-        <MemoryRouter initialEntries={[`/authors/${sampleResponse.authors[0].id}`]}>
+        <MemoryRouter initialEntries={[`/authors/${author.id}`]}>
           <AppRoutes />
         </MemoryRouter>,
         { wrapper }
       );
 
       await waitFor(() => {
-        expect(screen.getByText('Unauthorized Access')).toBeInTheDocument();
+        expect(screen.getByText('Author Details')).toBeInTheDocument();
       });
     });
   });

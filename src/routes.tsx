@@ -20,9 +20,9 @@ const AppRoutes = () => {
           <Route index element={<Navigate to={ROUTES.books} replace />} />
           <Route path={ROUTES.books} element={<BooksPage />} />
           <Route path={ROUTES.authors} element={<AuthorsPage />} />
+          <Route path={ROUTES.authorDetails} element={<AuthorPage />} />
           <Route element={<AdminGate />}>
             <Route path={ROUTES.newAuthor} element={<AuthorPage />} />
-            <Route path={ROUTES.editAuthor} element={<AuthorPage />} />
             <Route path={ROUTES.newBook} element={<BookPage />} />
             <Route path={ROUTES.editBook} element={<BookPage />} />
           </Route>

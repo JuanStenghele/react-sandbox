@@ -55,7 +55,8 @@
   },
   "authorForm": {
     "newTitle": "New Author",
-    "editTitle": "Edit Author"
+    "editTitle": "Edit Author",
+    "viewTitle": "Author Details"
   },
   "bookForm": {
     "newTitle": "New Book",

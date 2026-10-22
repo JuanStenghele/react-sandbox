@@ -7,7 +7,7 @@ export const ROUTES = {
   authors: '/authors',
   unauthorized: '/unauthorized',
   newAuthor: '/authors/new',
-  editAuthor: '/authors/:id',
+  authorDetails: '/authors/:id',
   newBook: '/books/new',
   editBook: '/books/:id'
 } as const;

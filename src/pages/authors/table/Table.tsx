@@ -35,7 +35,7 @@ const AuthorsTable = () => {
   ];
 
   const onRowClick = (params: GridRowParams) => {
-    navigate(generatePath(ROUTES.editAuthor, { id: params.row.id }), { state: { author: params.row } });
+    navigate(generatePath(ROUTES.authorDetails, { id: params.row.id }), { state: { author: params.row } });
   };
 
   const onRowSelected = (newSelectionModel: GridRowSelectionModel) => {
